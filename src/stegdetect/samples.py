@@ -38,6 +38,6 @@ def bidi_wrap(payload: str, cover: str = "Click here for details") -> str:
 
 
 def tag_encode(payload: str, cover: str = "Invoice #1042 attached.") -> str:
-    """Encode payload with Unicode tag characters (U+E0000 block)."""
+    """Encode an ASCII payload with Unicode tags (U+E0000 block)."""
     hidden = "".join(chr(0xE0000 + ord(c)) for c in payload)
     return cover + hidden

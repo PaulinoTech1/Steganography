@@ -1,0 +1,27 @@
+{
+  "seed": 20261001,
+  "legitimate_samples": 16,
+  "false_positives": 0,
+  "attack_families": {
+    "zero_width_encode": {
+      "samples": 200,
+      "false_negatives": 0
+    },
+    "bidi_wrap": {
+      "samples": 200,
+      "false_negatives": 0
+    },
+    "tag_encode": {
+      "samples": 200,
+      "false_negatives": 0
+    },
+    "homoglyph_swap": {
+      "samples": 200,
+      "false_negatives": 0
+    }
+  },
+  "deliberate_below_density_evasion": {
+    "samples": 8,
+    "undetected": 8
+  }
+}

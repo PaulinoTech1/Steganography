@@ -1,0 +1,274 @@
+{
+  "python": "3.10.10 (tags/v3.10.10:aad5f6a, Feb  7 2023, 17:20:36) [MSC v.1929 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "unicode_version": "13.0.0",
+  "baseline_normalization": false,
+  "timeout_seconds": 30,
+  "repeats": 3,
+  "rows": [
+    {
+      "case": "ascii",
+      "chars": 262144,
+      "seconds": [
+        0.3063093000018853,
+        0.2954186000060872,
+        0.31932809999852907
+      ],
+      "median_seconds": 0.3063093000018853,
+      "finding_count": 0
+    },
+    {
+      "case": "ascii",
+      "chars": 524288,
+      "seconds": [
+        0.6186759999982314,
+        0.5960233000005246,
+        0.5898409000001266
+      ],
+      "median_seconds": 0.5960233000005246,
+      "finding_count": 0
+    },
+    {
+      "case": "ascii",
+      "chars": 1048576,
+      "seconds": [
+        1.1481461999937892,
+        1.1437695999993593,
+        1.1287786000029882
+      ],
+      "median_seconds": 1.1437695999993593,
+      "finding_count": 0
+    },
+    {
+      "case": "surrogates",
+      "chars": 262144,
+      "seconds": [
+        0.28365040000062436,
+        0.2852889999994659,
+        0.2848383999953512
+      ],
+      "median_seconds": 0.2848383999953512,
+      "finding_count": 0
+    },
+    {
+      "case": "surrogates",
+      "chars": 524288,
+      "seconds": [
+        0.5864589000047999,
+        0.5786608000053093,
+        0.5737804000018514
+      ],
+      "median_seconds": 0.5786608000053093,
+      "finding_count": 0
+    },
+    {
+      "case": "surrogates",
+      "chars": 1048576,
+      "seconds": [
+        1.1537326000034227,
+        1.1616863000017474,
+        1.1450570000015432
+      ],
+      "median_seconds": 1.1537326000034227,
+      "finding_count": 0
+    },
+    {
+      "case": "nested_bidi",
+      "chars": 262144,
+      "seconds": [
+        0.48283880000235513,
+        0.48934010000084527,
+        0.4907095999951707
+      ],
+      "median_seconds": 0.48934010000084527,
+      "finding_count": 262144
+    },
+    {
+      "case": "nested_bidi",
+      "chars": 524288,
+      "seconds": [
+        1.00283070000296,
+        1.0359792000017478,
+        0.9856983999998192
+      ],
+      "median_seconds": 1.00283070000296,
+      "finding_count": 524288
+    },
+    {
+      "case": "nested_bidi",
+      "chars": 1048576,
+      "seconds": [
+        1.9752762999996776,
+        1.964170200000808,
+        2.014341300004162
+      ],
+      "median_seconds": 1.9752762999996776,
+      "finding_count": 1048576
+    },
+    {
+      "case": "mixed_script",
+      "chars": 262144,
+      "seconds": [
+        0.6599227999977302,
+        0.6417421000005561,
+        0.6374458999998751
+      ],
+      "median_seconds": 0.6417421000005561,
+      "finding_count": 131072
+    },
+    {
+      "case": "mixed_script",
+      "chars": 524288,
+      "seconds": [
+        1.3503095999985817,
+        1.3293860999983735,
+        1.329151500001899
+      ],
+      "median_seconds": 1.3293860999983735,
+      "finding_count": 262144
+    },
+    {
+      "case": "mixed_script",
+      "chars": 1048576,
+      "seconds": [
+        2.749509399996896,
+        2.682365300002857,
+        2.803234099999827
+      ],
+      "median_seconds": 2.749509399996896,
+      "finding_count": 524288
+    },
+    {
+      "case": "combining",
+      "chars": 262144,
+      "seconds": [
+        0.2979893000010634,
+        0.2872457999983453,
+        0.28727140000410145
+      ],
+      "median_seconds": 0.28727140000410145,
+      "finding_count": 0
+    },
+    {
+      "case": "combining",
+      "chars": 524288,
+      "seconds": [
+        0.540109499997925,
+        0.5280266000045231,
+        0.5420745000010356
+      ],
+      "median_seconds": 0.540109499997925,
+      "finding_count": 0
+    },
+    {
+      "case": "combining",
+      "chars": 1048576,
+      "seconds": [
+        1.0818723999982467,
+        1.066285400003835,
+        1.0790019999985816
+      ],
+      "median_seconds": 1.0790019999985816,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 262144,
+      "seconds": [
+        0.36734440000145696,
+        0.36719840000296244,
+        0.35976189999928465
+      ],
+      "median_seconds": 0.36719840000296244,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 524288,
+      "seconds": [
+        0.7685732000027201,
+        0.777417700002843,
+        0.7588931999998749
+      ],
+      "median_seconds": 0.7685732000027201,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 1048576,
+      "seconds": [
+        1.4769999999989523,
+        1.4774967000048491,
+        1.500453099994047
+      ],
+      "median_seconds": 1.4774967000048491,
+      "finding_count": 0
+    },
+    {
+      "case": "zero_width",
+      "chars": 262144,
+      "seconds": [
+        0.5460451999970246,
+        0.5410759000005783,
+        0.5500373999966541
+      ],
+      "median_seconds": 0.5460451999970246,
+      "finding_count": 262144
+    },
+    {
+      "case": "zero_width",
+      "chars": 524288,
+      "seconds": [
+        1.1219868999978644,
+        1.141191599999729,
+        1.113457000006747
+      ],
+      "median_seconds": 1.1219868999978644,
+      "finding_count": 524288
+    },
+    {
+      "case": "zero_width",
+      "chars": 1048576,
+      "seconds": [
+        2.313420300000871,
+        2.2643435999998474,
+        2.3255397000029916
+      ],
+      "median_seconds": 2.313420300000871,
+      "finding_count": 1048576
+    },
+    {
+      "case": "tags",
+      "chars": 262144,
+      "seconds": [
+        0.4766927000018768,
+        0.4853316000007908,
+        0.5005717999956687
+      ],
+      "median_seconds": 0.4853316000007908,
+      "finding_count": 262144
+    },
+    {
+      "case": "tags",
+      "chars": 524288,
+      "seconds": [
+        1.0749226999978418,
+        1.0482778000005055,
+        1.019856200000504
+      ],
+      "median_seconds": 1.0482778000005055,
+      "finding_count": 524288
+    },
+    {
+      "case": "tags",
+      "chars": 1048576,
+      "seconds": [
+        2.0558703999995487,
+        2.060396299995773,
+        2.08812670000043
+      ],
+      "median_seconds": 2.060396299995773,
+      "finding_count": 1048576
+    }
+  ]
+}

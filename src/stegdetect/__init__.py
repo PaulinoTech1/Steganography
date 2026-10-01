@@ -1,7 +1,7 @@
 """stegdetect: pre-filter that catches steganographic prompt injection.
 
 Scan text for invisible/deceptive Unicode carriers, get a verdict,
-and get a sanitized copy safe to forward to a model.
+and get a canonicalized copy; plain-text injections remain out of scope.
 """
 from .report import Report, analyze
 

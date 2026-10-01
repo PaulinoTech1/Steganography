@@ -1,0 +1,92 @@
+{
+  "python": "3.10.10 (tags/v3.10.10:aad5f6a, Feb  7 2023, 17:20:36) [MSC v.1929 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "unicode_version": "13.0.0",
+  "baseline_normalization": true,
+  "timeout_seconds": 3.0,
+  "repeats": 1,
+  "rows": [
+    {
+      "case": "combining",
+      "chars": 4096,
+      "seconds": [
+        0.010180799996305723
+      ],
+      "median_seconds": 0.010180799996305723,
+      "finding_count": 0
+    },
+    {
+      "case": "combining",
+      "chars": 8192,
+      "seconds": [
+        0.03253259999473812
+      ],
+      "median_seconds": 0.03253259999473812,
+      "finding_count": 0
+    },
+    {
+      "case": "combining",
+      "chars": 16384,
+      "seconds": [
+        0.09905699999944773
+      ],
+      "median_seconds": 0.09905699999944773,
+      "finding_count": 0
+    },
+    {
+      "case": "combining",
+      "chars": 32768,
+      "seconds": [
+        0.3666610000000219
+      ],
+      "median_seconds": 0.3666610000000219,
+      "finding_count": 0
+    },
+    {
+      "case": "combining",
+      "chars": 1048576,
+      "timeout": true
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 4096,
+      "seconds": [
+        0.009137899993220344
+      ],
+      "median_seconds": 0.009137899993220344,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 8192,
+      "seconds": [
+        0.02942299999995157
+      ],
+      "median_seconds": 0.02942299999995157,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 16384,
+      "seconds": [
+        0.10205059999861987
+      ],
+      "median_seconds": 0.10205059999861987,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 32768,
+      "seconds": [
+        0.3760078000050271
+      ],
+      "median_seconds": 0.3760078000050271,
+      "finding_count": 0
+    },
+    {
+      "case": "compatibility_combining",
+      "chars": 1048576,
+      "timeout": true
+    }
+  ]
+}

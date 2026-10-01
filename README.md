@@ -1,8 +1,8 @@
 # stegdetect
 
-A pre-filter that catches steganographic prompt injection before it reaches a language model.
+A Unicode carrier pre-filter for text sent to a language model.
 
-Small businesses usually can't afford frontier models, and weaker models are more vulnerable to prompt injection: poorer instruction/data discrimination, weaker system-prompt adherence, less safety tuning. `stegdetect` is model-agnostic defense for that reality. It inspects the *carrier*, not the meaning, so it works the same in front of any model, in any language, with no GPU and no weights.
+`stegdetect` inspects Unicode *carriers*, not instruction meaning. It runs locally with no GPU, model weights, or network calls. The tests exercise specific carriers and legitimate samples; they do not establish prompt-injection prevention or accuracy across all languages and models.
 
 ## How it works
 
@@ -12,9 +12,14 @@ untrusted text -> analyze() -> { verdict, findings, sanitized } -> LLM
 
 1. **Detect** invisible and deceptive Unicode: zero-width characters, bidi overrides, homoglyph (mixed-script) substitution, Unicode tag characters, suspicious whitespace.
 2. **Verdict**: `clean`, `suspicious`, or `malicious`, with per-finding severity, offsets, and codepoints.
-3. **Neutralize**: strip invisible carriers, map confusables to ASCII, collapse weird whitespace. Forward the sanitized text to the model.
+3. **Canonicalize**: normalize with NFKC, strip configured invisible carriers, map configured confusables to ASCII, and replace configured unusual spaces. Sanitized text can still contain plain-text injections.
 
 Detection runs on the original text; canonicalization never destroys evidence.
+
+Canonicalization also runs on clean-verdict text. For example, clean Chinese
+fullwidth punctuation and clean Russian/English code-switching can change in
+the forwarded copy (pinned in `tests/test_fuzz.py`). This work
+preserves that policy; `clean` does not mean the text is unchanged.
 
 ## Install
 
@@ -60,7 +65,10 @@ Exit code is 0 for clean, 2 otherwise.
 
 ## What it does not catch (yet)
 
-Pure linguistic steganography: acrostics, synonym-substitution bit encoding, paraphrase-encoded payloads. Those need statistical analysis, which is the planned layer two. The Unicode layer is deterministic and cheap; it will never be the bottleneck.
+Plain-text injections and rendering tricks without Unicode carriers remain
+out of scope. The two boundary tests in `tests/test_historical.py` deliberately
+return clean; see `docs/HISTORICAL_ATTACKS.md`. There is no semantic layer two.
+Acrostics, synonym substitution, and paraphrase encoding are not detected.
 
 ## Test
 
@@ -84,6 +92,34 @@ Test layout:
   (Trojan Source, ASCII smuggling, Llama Firewall evasion) plus the two
   deliberate out-of-scope boundary tests. Full 1-to-1 mapping in
   `docs/HISTORICAL_ATTACKS.md`.
+- `tests/test_fuzz.py` — reproducible Hypothesis properties over all four
+  existing generators, arbitrary Python strings including lone surrogates,
+  finding offsets, normalization equivalence, and deliberate density evasion.
+- `tests/test_robustness.py` — isolated processes scan eight pathological
+  workloads at 262,144 and 1,048,576 characters, with 30-second timeouts
+  and a loose scaling regression guard.
+
+## Measured robustness
+
+Priority 1 (fuzzing/robustness) exposed quadratic ordering in standard NFKC
+on descending combining-mark runs. The canonicalizer now decomposes each
+codepoint, orders marks with stable combining-class buckets, then composes
+already ordered text. Tests compare its output with standard NFKC for every
+single Python codepoint and bounded generated strings, including composition
+and compatibility-decomposition cases.
+
+See [the measured results and limits](docs/ROBUSTNESS.md) for timings and
+finite FP/FN counts. These are measurements on one machine, not a general
+no-hang guarantee, memory limit, or proof of worst-case linear runtime.
+The API tests accept lone-surrogate Python strings; this does not establish
+that arbitrary surrogates can be written to UTF-8 CLI streams.
+
+Reproduce the benchmark and corpus measurements after installing dev extras:
+
+```bash
+python benchmarks/robustness.py --output docs/robustness-results.json
+python benchmarks/corpus.py --output docs/robustness-corpus.json
+```
 
 Every detection rule has a paired attack generator in `src/stegdetect/samples.py`. If you add a rule, add a generator.
 
