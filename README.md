@@ -80,6 +80,10 @@ Test layout:
 - `tests/test_canonicalize.py` — canonicalizer properties: idempotent,
   offsets index into the original text, NFKC folding.
 - `tests/test_cli.py` — exit codes and JSON report shape.
+- `tests/test_historical.py` — reconstructions of documented attacks
+  (Trojan Source, ASCII smuggling, Llama Firewall evasion) plus the two
+  deliberate out-of-scope boundary tests. Full 1-to-1 mapping in
+  `docs/HISTORICAL_ATTACKS.md`.
 
 Every detection rule has a paired attack generator in `src/stegdetect/samples.py`. If you add a rule, add a generator.
 
