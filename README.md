@@ -65,9 +65,21 @@ Pure linguistic steganography: acrostics, synonym-substitution bit encoding, par
 ## Test
 
 ```bash
-pip install pytest
+pip install -e ".[dev]"
 pytest
 ```
+
+Test layout:
+
+- `tests/test_detector.py` — the original rule/generator pairs.
+- `tests/test_adversarial.py` — one test per attack shape, including the
+  deliberate boundaries (sub-threshold zero-width clusters, below-density
+  homoglyphs) where the detector stays silent to avoid false positives.
+- `tests/test_false_positives.py` — legitimate multilingual, emoji, math,
+  and code samples that must stay clean.
+- `tests/test_canonicalize.py` — canonicalizer properties: idempotent,
+  offsets index into the original text, NFKC folding.
+- `tests/test_cli.py` — exit codes and JSON report shape.
 
 Every detection rule has a paired attack generator in `src/stegdetect/samples.py`. If you add a rule, add a generator.
 
