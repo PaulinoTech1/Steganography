@@ -5,17 +5,20 @@ from enum import Enum
 from typing import Sequence
 
 from .bounded_scan import ScanResult
+from .unicode_context import ContextSummary
 from .unicode_scan import Finding
 
 
 class Policy(str, Enum):
     BALANCED = "balanced"
     LEGACY_VERDICT = "legacy_verdict"
+    CONTEXTUAL = "contextual"
 
 
 POLICY_IDS = {
     Policy.BALANCED: "balanced-v1",
     Policy.LEGACY_VERDICT: "legacy-verdict-v1",
+    Policy.CONTEXTUAL: "contextual-v1",
 }
 
 _EXPLICIT_OVERRIDES = {"\u202d", "\u202e"}
@@ -77,6 +80,31 @@ def decide_bounded(scan: ScanResult, policy: Policy) -> tuple[str, tuple[str, ..
         review.add("UNCLASSIFIED_EVIDENCE")
     if review:
         return "review", tuple(sorted(review))
+    if scan.finding_count_total:
+        return "allow", ("INFORMATIONAL_CARRIER",)
+    return "allow", ("NO_FINDINGS",)
+
+
+def decide_contextual(scan: ScanResult, context: ContextSummary) -> tuple[str, tuple[str, ...]]:
+    """Discount only validated context counts; retain all original evidence."""
+    if scan.has_explicit_override:
+        return "block", ("BIDI_EXPLICIT_OVERRIDE",)
+    counts = scan.category_counts
+    review: set[str] = set()
+    if counts.get("BIDI_OVERRIDE", 0) > context.recognized_bidi:
+        review.add("BIDI_CONTROL")
+    if counts.get("TAG_CHARACTER", 0) > context.recognized_tags:
+        review.add("TAG_CHARACTER")
+    if counts.get("MIXED_SCRIPT", 0):
+        review.add("MIXED_SCRIPT")
+    if context.unrecognized_zwj:
+        review.add("UNRECOGNIZED_JOINER")
+    if counts.get("ZERO_WIDTH", 0) - context.recognized_zero_width >= 4:
+        review.add("ZERO_WIDTH_CLUSTER")
+    if review:
+        return "review", tuple(sorted(review))
+    if context.any_recognized:
+        return "allow", ("RECOGNIZED_CONTEXT",)
     if scan.finding_count_total:
         return "allow", ("INFORMATIONAL_CARRIER",)
     return "allow", ("NO_FINDINGS",)

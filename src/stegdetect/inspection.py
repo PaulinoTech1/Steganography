@@ -7,7 +7,8 @@ from types import MappingProxyType
 from typing import ClassVar, Mapping
 
 from .bounded_scan import scan_bounded
-from .policy import POLICY_IDS, Policy, decide_bounded
+from .policy import POLICY_IDS, Policy, decide_bounded, decide_contextual
+from .unicode_context import recognize_context
 from .unicode_scan import Finding
 
 
@@ -51,7 +52,6 @@ class Evidence:
 
 @dataclass(frozen=True)
 class InspectionReport:
-    schema_version: ClassVar[int] = 3
     transformation: ClassVar[str] = "preserve"
     policy_id: str
     status: str
@@ -64,6 +64,7 @@ class InspectionReport:
     scan_complete: bool
     candidate_text: str | None
     max_output_bytes: int
+    schema_version: int = 3
 
     def as_dict(self) -> dict:
         return {
@@ -96,7 +97,8 @@ def _held(policy_id: str, status: str, reason: str, limits: Limits, *,
                             reason_codes=(reason,), findings=(), finding_count_total=total,
                             category_counts=MappingProxyType(dict(counts or {})),
                             findings_truncated=total > 0, scan_complete=scan_complete,
-                            candidate_text=None, max_output_bytes=limits.max_output_bytes)
+                            candidate_text=None, max_output_bytes=limits.max_output_bytes,
+                            schema_version=4 if policy_id == "contextual-v1" else 3)
 
 
 def inspect_text(text: str, *, policy: Policy = Policy.BALANCED,
@@ -124,7 +126,10 @@ def inspect_text(text: str, *, policy: Policy = Policy.BALANCED,
             return _held(policy_id, "limit_exceeded", "EVIDENCE_LIMIT", limits,
                          total=scan.finding_count_total, counts=scan.category_counts,
                          scan_complete=True)
-        action, reasons = decide_bounded(scan, policy)
+        if policy is Policy.CONTEXTUAL:
+            action, reasons = decide_contextual(scan, recognize_context(text))
+        else:
+            action, reasons = decide_bounded(scan, policy)
         evidence = tuple(Evidence.from_finding(finding) for finding in scan.findings)
         report = InspectionReport(policy_id=policy_id, status="complete", action=action,
                                   reason_codes=reasons, findings=evidence,
@@ -133,7 +138,8 @@ def inspect_text(text: str, *, policy: Policy = Policy.BALANCED,
                                   findings_truncated=scan.findings_truncated,
                                   scan_complete=True,
                                   candidate_text=text if action == "allow" else None,
-                                  max_output_bytes=limits.max_output_bytes)
+                                  max_output_bytes=limits.max_output_bytes,
+                                  schema_version=4 if policy is Policy.CONTEXTUAL else 3)
         try:
             report.to_json()
         except ValueError:
