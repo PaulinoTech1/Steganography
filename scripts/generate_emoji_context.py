@@ -19,7 +19,8 @@ SOURCES = {
 def generate() -> str:
     rows: list[str] = []
     for name, (expected_digest, wanted_type) in SOURCES.items():
-        raw = (UPSTREAM / name).read_bytes()
+        # Normalized so the pin holds on CRLF checkouts; the binding is over content.
+        raw = (UPSTREAM / name).read_bytes().replace(b"\r\n", b"\n")
         if hashlib.sha256(raw).hexdigest() != expected_digest:
             raise ValueError(f"pinned Unicode source changed: {name}")
         for line in raw.decode("utf-8-sig").splitlines():
