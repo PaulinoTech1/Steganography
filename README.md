@@ -73,6 +73,12 @@ states exact recognition boundaries and measured development-set outcomes.
 For scripts and applications, see [CLI batches, explanations, and tested
 RAG/tool-result gates](docs/DEVELOPER_WORKFLOWS.md).
 
+For a static local inspection page, run
+`stegdetect-view -f retrieved_document.txt -o evidence.html`. It displays
+escaped original codepoints and offsets, policy reasons, and clearly labeled
+preserve/legacy transformation previews. Review and block still produce a
+page with no forwarding candidate. See the [viewer guide](docs/EVIDENCE_VIEWER.md).
+
 Run `python scripts/validate_release.py --profile bounded` to verify the full
 suite, installed wheel, and both source-bound resource artifacts. The measured
 Windows results are in [P2 default-path](docs/P2_RESOURCE_RESULTS.md) and

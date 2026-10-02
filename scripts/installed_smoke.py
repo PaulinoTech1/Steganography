@@ -130,6 +130,31 @@ def main() -> int:
     if (batch_cli.returncode != 3 or len(batch_reports) != 2 or
             [row["action"] for row in batch_reports] != ["allow", "block"]):
         raise AssertionError("installed JSONL mismatch")
+    viewer_console = Path(sys.prefix) / ("Scripts/stegdetect-view.exe" if os.name == "nt"
+                                         else "bin/stegdetect-view")
+    if not viewer_console.is_file():
+        raise AssertionError(f"installed viewer entry missing: {viewer_console}")
+    viewer_input = Path.cwd() / "viewer-hostile.txt"
+    viewer_output = Path.cwd() / "viewer-hostile.html"
+    viewer_input.write_bytes(b"A\xf0\x9f\x98\x80\xe2\x80\xae<script>x</script>")
+    viewer_cli = subprocess.run([str(viewer_console), "-f", str(viewer_input), "-o",
+                                 str(viewer_output)], cwd=Path.cwd(), env=env,
+                                capture_output=True, text=True, encoding="utf-8", timeout=20)
+    viewer_html = viewer_output.read_text(encoding="utf-8") if viewer_output.is_file() else ""
+    if (viewer_cli.returncode != 3 or not viewer_output.is_file() or
+            "U+202E" not in viewer_html or "\u202e" in viewer_html or
+            "<script>x</script>" in viewer_html):
+        raise AssertionError("installed viewer did not safely display held evidence")
+    clean_input = Path.cwd() / "viewer-clean.txt"
+    clean_output = Path.cwd() / "viewer-clean.html"
+    clean_input.write_bytes("Ａ".encode("utf-8"))
+    viewer_cli = subprocess.run([str(viewer_console), "-f", str(clean_input), "-o",
+                                 str(clean_output)], cwd=Path.cwd(), env=env,
+                                capture_output=True, text=True, encoding="utf-8", timeout=20)
+    if (viewer_cli.returncode != 0 or not clean_output.is_file() or
+            "Legacy canonicalization changes this input: yes" not in
+            clean_output.read_text(encoding="utf-8")):
+        raise AssertionError("installed viewer missed the transformation comparison")
     integration_cases = _check_installed_examples(root)
     corpus = measure(root / "tests" / "test_false_positives.py")
     expected = json.loads((root / "docs" / "robustness-corpus.json").read_text(encoding="utf-8"))
@@ -141,6 +166,7 @@ def main() -> int:
                       "cli_cases": len(snapshot["cases"]), "bounded_cases": 3,
                       "developer_cli_cases": 2,
                       "installed_integration_cases": integration_cases,
+                      "installed_viewer_cases": 2,
                       "corpus": corpus}, sort_keys=True))
     return 0
 

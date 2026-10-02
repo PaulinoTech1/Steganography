@@ -159,7 +159,7 @@ def main() -> int:
         context_resource_summary = verify_context_resources() if args.profile == "bounded" else None
         suite_output = run([sys.executable, "-m", "pytest", "-q"], cwd=ROOT, timeout=240)
         match = re.search(r"(\d+) passed", suite_output)
-        if not match or int(match.group(1)) < (318 if args.profile == "bounded" else 227):
+        if not match or int(match.group(1)) < (326 if args.profile == "bounded" else 227):
             raise ValueError(f"full suite missing or below {args.profile} baseline: {suite_output[-1000:]}")
         with tempfile.TemporaryDirectory(prefix="stegdetect-wheel-") as directory:
             installed = installed_wheel_smoke(Path(directory))
@@ -169,7 +169,8 @@ def main() -> int:
                 installed["bounded_cases"] != 3 or
                 installed["contextual_cases"] != evaluated["evaluated"] or
                 installed["developer_cli_cases"] != 2 or
-                installed["installed_integration_cases"] != 6):
+                installed["installed_integration_cases"] != 6 or
+                installed["installed_viewer_cases"] != 2):
             raise ValueError("source/installed baseline mismatch")
         print(json.dumps({"profile": args.profile, "status": "PASS", "tests_passed": int(match.group(1)),
                           "development_fixtures": evaluated["evaluated"],
@@ -185,6 +186,7 @@ def main() -> int:
                           "contextual_selected_clean_held": contextual["selected_clean_held"],
                           "installed_developer_cli_cases": installed["developer_cli_cases"],
                           "installed_integration_cases": installed["installed_integration_cases"],
+                          "installed_viewer_cases": installed["installed_viewer_cases"],
                           "installed_bounded_cases": installed["bounded_cases"],
                           "installed_cli_cases": installed["cli_cases"],
                           "resource_summary": resource_summary,

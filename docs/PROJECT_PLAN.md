@@ -366,6 +366,11 @@ release is authorized. [Packaging guidance](https://packaging.python.org/en/late
 
 ### P5: a viewer that demonstrates the value
 
+Local preview: `stegdetect-view` now generates a bounded, static HTML page from
+the inspection API. See [EVIDENCE_VIEWER.md](EVIDENCE_VIEWER.md). Installed-wheel
+smoke and hostile-display tests cover the automated preview; browser
+accessibility tasks and independent users remain open.
+
 The first inspector can be a generated local HTML report consuming bounded SDK output.
 It does not need accounts, storage, uploads, analytics, or a JavaScript detector rewrite.
 It shows original escaped codepoints, spans, policy reasons, transformation preview,

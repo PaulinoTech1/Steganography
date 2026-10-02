@@ -199,12 +199,33 @@ batch partial-output, count/order pairing, and terminal escaping cases before
 claiming CLI usability. When a workflow example changes, rerun the source tests
 and installed-wheel gate, then update this guide with the observed result.
 
-The final local bounded preview gate on 2026-10-02 reported 318 passing tests,
+The latest local bounded preview gate on 2026-10-02 reported 326 passing tests,
 30 contextual installed-wheel fixture outcomes, two installed developer CLI
-cases, six installed RAG/tool boundary cases, 12 claim mappings, and six
-deliberately failing negative controls.
+cases, six installed RAG/tool boundary cases, two installed viewer CLI cases,
+12 claim mappings, and six deliberately failing negative controls.
 Its default-path resource receipt
 covered 21 rows and 1,610 trials; the contextual artifact covered four rows
 and 40 trials. Both recorded zero timeouts. Other operating systems, Python
 versions, independent language review, and production model-call routing
 remain unverified locally.
+
+## Local viewer process
+
+The [viewer guide](EVIDENCE_VIEWER.md) describes the P5 static HTML preview.
+The viewer takes only the bounded UTF-8 entry point, then uses the report's
+original offsets, counts, reasons, action, and schema version. It displays
+source windows in isolated codepoint cells, calculates UTF-16 starts in one
+pass, and labels a legacy canonicalization comparison as hypothetical. It
+never converts a review/block/error into a forwarding candidate. The saved
+page is capped at 2 MiB and uses bounded excerpts; a short input may appear
+in full and should be treated as sensitive.
+
+Reviewer sequence: inspect the source/report boundary, challenge HTML and
+bidi escaping with attacker-controlled markup, check astral offsets against
+the original string, verify truncated evidence and invalid-input behavior,
+then run the installed-wheel viewer entry point outside the checkout. The
+bounded release gate runs two installed viewer cases. A passing parser/static
+markup test is not a browser accessibility test; keyboard, screen-reader,
+visual contrast, and independent user tasks remain for the planned `viewer`
+profile. The 2026-10-02 local run had no available browser surface for a
+visual pass. Do not call that full profile complete from this preview.

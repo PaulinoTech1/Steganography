@@ -44,7 +44,7 @@ matrix below defines mandatory subgates; full V1–V8 contracts are scoped by th
 | Profile | Mandatory gates | Earliest phase / permitted claim |
 |---|---|---|
 | `baseline` | V1 legacy/install baseline, V4 development schema/split integrity, V8 baseline claim map | P0: baseline evidence only |
-| `bounded` | Baseline plus P2 cap/EOF tests, contextual and developer workflow tests, installed-wheel smoke, and source-bound local P2/P3 resource artifacts | P2/P3/P4 previews: scoped local observations; no cross-platform resource or enforcement guarantee |
+| `bounded` | Baseline plus P2 cap/EOF tests, contextual and developer workflow tests, local viewer tests and installed-wheel smoke, and source-bound local P2/P3 resource artifacts | P2/P3/P4/P5 previews: scoped local observations; no cross-platform resource, enforcement, or full viewer-usability guarantee |
 | `core` | V1/V2/V3/V5 implementation challenges, V4 development integrity/scores, V6 automated final-boundary examples, V7 wheel/data/offline checks, V8 preview claims | P4: SDK/CLI observation preview; no validated enforcement FP claim |
 | `enforcement` | Everything in core plus V4 independent holdout/sampling/bounds/action-recall gates | P4/P6: opt-in enforcement candidate for consented pilots; usability still pending |
 | `viewer` | Core plus V2 display adversary, V3 browser coordinate tests, V6 browser accessibility/tasks, V8 viewer scope | P5: viewer preview; does not substitute for enforcement or pilots |

@@ -1,8 +1,10 @@
-# P0 claims ledger
+# Project claims ledger
 
-Run `python scripts/validate_release.py --profile baseline` before repeating
-these numbers. [`evals/claims.json`](../evals/claims.json) maps each count to a
-computed metric and fails if it drifts. The command checks the full test suite,
+Run `python scripts/validate_release.py --profile baseline` for the P0 counts
+and `--profile bounded` for the later preview checks.
+[`evals/claims.json`](../evals/claims.json) maps the corpus and contextual
+action counts to computed metrics and fails if they drift. The command checks
+the full test suite,
 the exact development fixtures, the original corpus parity, deliberately broken
 negative controls, and an installed wheel in a disposable environment.
 
@@ -49,6 +51,13 @@ for per-document and aggregate caps and for withholding held documents at a
 stubbed final model-call boundary. The installed-wheel release gate repeats
 six allow/hold/cap checks against repository examples loaded outside the
 checkout. This does not validate a production RAG system or tool host.
+
+The [local viewer preview](EVIDENCE_VIEWER.md) displays bounded, escaped
+original-codepoint windows, report reasons and offsets, and separate preserve
+candidate versus hypothetical legacy-canonicalization previews. Automated
+tests cover hostile markup/bidi text and an astral offset; the installed-wheel
+gate runs two viewer CLI cases. Browser accessibility and independent user
+tasks have not been completed, so this is not a full viewer-usability claim.
 
 The separate [`P3_CONTEXT_RESULTS.md`](P3_CONTEXT_RESULTS.md) profile recorded
 40 timed trials across four one-megacharacter contextual workloads with no

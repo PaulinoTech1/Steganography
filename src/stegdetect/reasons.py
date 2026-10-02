@@ -1,0 +1,26 @@
+"""Static, input-independent explanations of policy reason codes."""
+
+REASON_EXPLANATIONS = {
+    "NO_FINDINGS": "No configured Unicode carrier was found.",
+    "INFORMATIONAL_CARRIER": "Only informational carrier evidence was found.",
+    "RECOGNIZED_CONTEXT": "Carrier evidence matches a narrow recognized Unicode context.",
+    "BIDI_EXPLICIT_OVERRIDE": "An explicit direction override can change displayed order.",
+    "BIDI_CONTROL": "A direction control needs review.",
+    "TAG_CHARACTER": "A Unicode tag sequence needs review.",
+    "MIXED_SCRIPT": "Mixed-script evidence needs review.",
+    "ZERO_WIDTH_CLUSTER": "An unexplained zero-width cluster needs review.",
+    "UNRECOGNIZED_JOINER": "A joiner lacks a recognized context.",
+    "INPUT_CHAR_LIMIT": "Input exceeds the configured character limit.",
+    "INPUT_BYTE_LIMIT": "Input exceeds the configured byte limit.",
+    "OUTPUT_BYTE_LIMIT": "The report exceeds the configured output limit.",
+    "EVIDENCE_LIMIT": "Required decision evidence could not be retained.",
+    "INVALID_UTF8": "Input is not valid UTF-8.",
+    "INVALID_JSON": "The batch record is not valid UTF-8 JSON.",
+    "INVALID_TYPE": "The input has the wrong type.",
+    "INVALID_UNICODE": "Input contains a lone surrogate.",
+    "INPUT_IO_ERROR": "The input could not be read.",
+    "SCAN_ERROR": "Inspection failed; no text may be forwarded.",
+    "UNCLASSIFIED_EVIDENCE": "An unclassified carrier needs review.",
+    "LEGACY_HIGH_FINDING": "The legacy mapping found high-severity evidence.",
+    "LEGACY_FINDING": "The legacy mapping found carrier evidence.",
+}

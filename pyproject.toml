@@ -30,6 +30,7 @@ dev = ["pytest", "hypothesis>=6", "jsonschema>=4", "wheel"]
 
 [project.scripts]
 stegdetect = "stegdetect.cli:main"
+stegdetect-view = "stegdetect.viewer:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
