@@ -59,6 +59,12 @@ tests cover hostile markup/bidi text and an astral offset; the installed-wheel
 gate runs two viewer CLI cases. Browser accessibility and independent user
 tasks have not been completed, so this is not a full viewer-usability claim.
 
+P6 independent tasks and production shadow pilots have not run; see
+[P6_STATUS.md](P6_STATUS.md). A local replay's metadata counts and scanner
+latency are not deployment false-positive rates, model outcomes, or evidence
+of independent usefulness. The lexical R1 scorer remains an unshipped,
+separately gated experiment.
+
 The separate [`P3_CONTEXT_RESULTS.md`](P3_CONTEXT_RESULTS.md) profile recorded
 40 timed trials across four one-megacharacter contextual workloads with no
 timeouts or decision mismatches. Its largest observed p95 was 1.809 s and

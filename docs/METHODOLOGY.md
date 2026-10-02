@@ -199,7 +199,7 @@ batch partial-output, count/order pairing, and terminal escaping cases before
 claiming CLI usability. When a workflow example changes, rerun the source tests
 and installed-wheel gate, then update this guide with the observed result.
 
-The latest local bounded preview gate on 2026-10-02 reported 326 passing tests,
+The latest local bounded preview gate on 2026-10-02 reported 330 passing tests,
 30 contextual installed-wheel fixture outcomes, two installed developer CLI
 cases, six installed RAG/tool boundary cases, two installed viewer CLI cases,
 12 claim mappings, and six deliberately failing negative controls.
@@ -229,3 +229,16 @@ markup test is not a browser accessibility test; keyboard, screen-reader,
 visual contrast, and independent user tasks remain for the planned `viewer`
 profile. The 2026-10-02 local run had no available browser surface for a
 visual pass. Do not call that full profile complete from this preview.
+
+## Independent usefulness validation
+
+The [P6 protocol](P6_VALIDATION.md) freezes participant tasks, consented
+pipeline observations, privacy limits, and denominators before collecting
+results. `scripts/shadow_replay.py` is a local rehearsal instrument: it
+inspects bounded replay text and writes only whitelisted metadata, with no
+model call or claim of host integration. Its `replay_complete` result means
+the input stream was processed, not that real users or pipelines were
+validated. Incomplete records make the summary incomplete, and outputs never
+include candidate text. Keep the [P6 status](P6_STATUS.md) at NOT RUN until
+independent human and production evidence exists. The lexical R1 experiment
+has a separate task corpus and release gate; P6 cannot promote it by proxy.

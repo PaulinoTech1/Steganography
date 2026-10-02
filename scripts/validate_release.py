@@ -159,7 +159,7 @@ def main() -> int:
         context_resource_summary = verify_context_resources() if args.profile == "bounded" else None
         suite_output = run([sys.executable, "-m", "pytest", "-q"], cwd=ROOT, timeout=240)
         match = re.search(r"(\d+) passed", suite_output)
-        if not match or int(match.group(1)) < (326 if args.profile == "bounded" else 227):
+        if not match or int(match.group(1)) < (330 if args.profile == "bounded" else 227):
             raise ValueError(f"full suite missing or below {args.profile} baseline: {suite_output[-1000:]}")
         with tempfile.TemporaryDirectory(prefix="stegdetect-wheel-") as directory:
             installed = installed_wheel_smoke(Path(directory))

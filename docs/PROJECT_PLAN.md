@@ -390,6 +390,10 @@ sequence has a recoverable message.
 
 ### P6: pilots and a release users can trust
 
+Current execution status: [NOT RUN](P6_STATUS.md). A bounded local replay
+instrument and the [fixed task/pilot protocol](P6_VALIDATION.md) are available,
+but no independent users or consented pipelines have supplied receipts.
+
 Start with shadow mode in three independent pipelines, using consented or local
 replayed documents. Log counts, timings, rule/action IDs, and opaque source IDs only;
 store content only if the pilot owner explicitly enables it. Publish aggregate results

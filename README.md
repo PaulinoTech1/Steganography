@@ -79,6 +79,12 @@ escaped original codepoints and offsets, policy reasons, and clearly labeled
 preserve/legacy transformation previews. Review and block still produce a
 page with no forwarding candidate. See the [viewer guide](docs/EVIDENCE_VIEWER.md).
 
+Independent user tasks and consented shadow pilots have not run. The current
+[P6 status](docs/P6_STATUS.md) and [protocol](docs/P6_VALIDATION.md) separate
+automated rehearsal from real usefulness evidence. A lexical scorer remains a
+[separately gated experiment](experiments/lexical/README.md), outside the
+Unicode detector and its current release path.
+
 Run `python scripts/validate_release.py --profile bounded` to verify the full
 suite, installed wheel, and both source-bound resource artifacts. The measured
 Windows results are in [P2 default-path](docs/P2_RESOURCE_RESULTS.md) and
