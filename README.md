@@ -42,8 +42,32 @@ The 30 project-authored development fixtures include two benign examples held
 for review and three constructed attacks allowed by the balanced policy. They
 cannot establish a deployment false-positive or false-negative rate. See the
 [policy table and limitations](docs/P1_POLICY_CONTRACT.md) and the
-[versioned JSON schema](schemas/inspection-v2.schema.json). The legacy
+[versioned JSON schema](schemas/inspection-v3.schema.json). The committed
+v2 schema remains available for consumers of the earlier report format;
+P2 reports identify themselves as v3 because their fields and statuses changed.
+The legacy
 `analyze()` and CLI behavior below remain unchanged.
+
+The additive API accepts trusted `Limits` and has a bounded UTF-8 entry
+point. Defaults are 1,048,576 codepoints, 4 MiB of input bytes, 256 retained
+findings, and 16 MiB of compact ASCII JSON. Truncated finding detail retains
+exact whole-document counts; limit/error results expose no forwarding
+candidate. `report.to_json()` enforces the output cap. The new CLI mode reads
+file/stdin bytes under the byte cap:
+
+```bash
+stegdetect --inspect -f retrieved_document.txt
+```
+
+This mode exits 0 for allow, 3 for review/block, and 4 for invalid/limit/error.
+The legacy CLI modes below retain their existing exits and are not
+resource-bounded. See the [reviewer methodology](docs/METHODOLOGY.md) for
+measurement and validation.
+
+Run `python scripts/validate_release.py --profile bounded` to verify the full
+suite, installed wheel, and the source-bound resource artifact. The measured
+Windows results are in [P2 resource observations](docs/P2_RESOURCE_RESULTS.md);
+they are not a cross-platform latency or memory guarantee.
 
 ## Install
 

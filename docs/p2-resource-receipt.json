@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "artifact_sha256": "ce46c51eb09a6870ff6c67b75852637067a1878f34f19f114dbf67bec508f5d9",
+  "source_sha256": {
+    "src/stegdetect/inspection.py": "3c32672504d6068340bf13c0c7b71298e3f19a7801512f4d3cc1b8223ce35e01",
+    "src/stegdetect/bounded_scan.py": "7be657c0fd5c798cc87299c4d92d6106f134452da04dcf5a4d7d8f228232220c",
+    "src/stegdetect/policy.py": "5e01d236a828cc167959d331e254c9e495c63a761f45f0c068cd8c1c8a616075",
+    "src/stegdetect/unicode_scan.py": "8dfc2b5baab790fb0a19d648549a7cfbc0e0587532ed2865a89e7f9647e7c0c8",
+    "benchmarks/resources.py": "ddc3e13d9fd9b9e3b2c59b1698c76d63f59c68a354fee42ab6503858c0cb7a79"
+  }
+}

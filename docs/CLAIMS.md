@@ -28,3 +28,9 @@ development fixtures: `balanced-v1` allowed/reviewed/blocked 15/2/0 of 17
 project-labeled benign examples and 3/4/2 of 9 constructed attacks. These
 counts are recomputed by `scripts/evaluate.py` and checked against literal
 `expected_actions` in the manifest. They are not independent accuracy rates.
+
+P2 resource observations are in [`P2_RESOURCE_RESULTS.md`](P2_RESOURCE_RESULTS.md),
+with 21 workload/size rows and 1,610 raw trials from one Windows/Python 3.10.10
+run. The largest measured p95 was 1.815 s and the largest separate-worker peak
+working set was 46.0 MiB. Neither number is a cross-platform guarantee or
+latency SLA.

@@ -23,5 +23,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install development dependencies
         run: python -m pip install -e ".[dev]"
-      - name: Validate baseline and installed wheel
-        run: python scripts/validate_release.py --profile baseline
+      - name: Validate bounded API, installed wheel, and resource artifact
+        run: python scripts/validate_release.py --profile bounded

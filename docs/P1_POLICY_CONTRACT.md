@@ -4,24 +4,29 @@
 string and returns an `InspectionReport`. It does not call `canonicalize()` or
 change `analyze()` or the legacy CLI. The named policy is selected by trusted
 caller code using the `Policy` enum; text that says `policy=allow` has no effect.
-The complete JSON shape is frozen by
+The original P1 JSON shape is frozen by
 [`inspection-v2.schema.json`](../schemas/inspection-v2.schema.json).
+The bounded P2 report uses
+[`inspection-v3.schema.json`](../schemas/inspection-v3.schema.json):
+it adds `category_counts`, bounded detail, and `limit_exceeded`. Consumers
+must select the schema by `schema_version`; v2-only validators will reject
+P2 output. The Python `inspect_text()` call now returns v3 reports.
 
 | Field | Contract |
 |---|---|
-| `status` | `complete`, `invalid_input`, or `error` |
+| `status` | `complete`, `invalid_input`, `error`, or `limit_exceeded` |
 | `action` | `allow`, `review`, or `block` only for a complete scan; otherwise `null` |
 | `candidate_text` | Exact input on allow; `null` for review/block/failure |
 | `reason_codes` | Stable action-driving identifiers, separate from finding severity |
 | `findings` | Original-coordinate evidence with category and `unicode.<category>.v1` rule ID |
-| `finding_count_total`, `findings_truncated`, `scan_complete` | Exact count, always untruncated in P1, and explicit completion |
+| `finding_count_total`, `category_counts`, `findings_truncated`, `scan_complete` | Exact whole-document counts, capped detail in P2, and explicit completion |
 | `transformation` | Always `preserve`; no edits or normalization |
 
 Original offsets and lengths are Python codepoints. `as_dict()` includes
 input-derived evidence and candidate text; an application must treat reports
-as sensitive. When serializing an untrusted report for logs or terminals, use
-`json.dumps(report.as_dict(), ensure_ascii=True)` and a suitable output-size
-policy. P1 has no CLI for this schema.
+as sensitive. The P2 `to_json()` method and `--inspect` CLI produce capped,
+ASCII-escaped JSON. Code that serializes `as_dict()` itself needs its own
+output budget.
 
 The fixed `balanced-v1` preview table is:
 
@@ -53,10 +58,10 @@ injection, below-density mixed script, and three zero-width controls are among
 the constructed attacks it allowed. No held-action or safe-forwarding recall
 claim follows from this set.
 
-The original Unicode scanner still materializes all findings, and this API has
-no input, memory, time, or output cap. Context-sensitive emoji/joiner treatment,
-targeted transformations, limits, and an enforcement-grade policy require the
-later P2/P3 gates. `clean` and `allow` do not rule out plain-text injection or
+The original Unicode scanner still materializes all findings, while the
+additive API has P2 admission, evidence, and output limits. Context-sensitive
+emoji/joiner treatment, targeted transformations, and an enforcement-grade
+policy require later gates. `clean` and `allow` do not rule out plain-text injection or
 an exploit at an LLM boundary. Applications must make the final call decision.
 
 Local validation on Windows/Python 3.10.10 passed on 2026-10-02:

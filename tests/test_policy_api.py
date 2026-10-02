@@ -12,7 +12,7 @@ from scripts.evaluate import evaluate_policy_actions
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = json.loads((ROOT / "evals" / "manifest.json").read_text(encoding="utf-8"))
-SCHEMA = json.loads((ROOT / "schemas" / "inspection-v2.schema.json").read_text(encoding="utf-8"))
+SCHEMA = json.loads((ROOT / "schemas" / "inspection-v3.schema.json").read_text(encoding="utf-8"))
 Draft202012Validator.check_schema(SCHEMA)
 
 
@@ -91,7 +91,7 @@ def test_scan_error_cannot_be_forwarded(monkeypatch):
     def fail(_text):
         raise RuntimeError("scanner failure")
 
-    monkeypatch.setattr("stegdetect.inspection.scan_unicode", fail)
+    monkeypatch.setattr("stegdetect.inspection.scan_bounded", fail)
     report = inspect_text("ordinary")
     assert (report.status, report.action, report.candidate_text, report.scan_complete) == (
         "error", None, None, False)

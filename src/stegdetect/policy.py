@@ -4,6 +4,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Sequence
 
+from .bounded_scan import ScanResult
 from .unicode_scan import Finding
 
 
@@ -49,5 +50,33 @@ def decide(text: str, findings: Sequence[Finding], policy: Policy) -> tuple[str,
     if review:
         return "review", tuple(sorted(review))
     if findings:
+        return "allow", ("INFORMATIONAL_CARRIER",)
+    return "allow", ("NO_FINDINGS",)
+
+
+def decide_bounded(scan: ScanResult, policy: Policy) -> tuple[str, tuple[str, ...]]:
+    """Decide from whole-document counts, never from the retained detail subset."""
+    if policy is Policy.LEGACY_VERDICT:
+        if scan.has_high:
+            return "block", ("LEGACY_HIGH_FINDING",)
+        if scan.finding_count_total:
+            return "review", ("LEGACY_FINDING",)
+        return "allow", ("NO_FINDINGS",)
+    if scan.has_explicit_override:
+        return "block", ("BIDI_EXPLICIT_OVERRIDE",)
+    counts = scan.category_counts
+    review: set[str] = set()
+    if counts.get("BIDI_OVERRIDE", 0):
+        review.add("BIDI_CONTROL")
+    for category in ("TAG_CHARACTER", "MIXED_SCRIPT"):
+        if counts.get(category, 0):
+            review.add(category)
+    if scan.zero_width_high:
+        review.add("ZERO_WIDTH_CLUSTER")
+    if set(counts) - _INFORMATIONAL - {"BIDI_OVERRIDE", "TAG_CHARACTER", "MIXED_SCRIPT"}:
+        review.add("UNCLASSIFIED_EVIDENCE")
+    if review:
+        return "review", tuple(sorted(review))
+    if scan.finding_count_total:
         return "allow", ("INFORMATIONAL_CARRIER",)
     return "allow", ("NO_FINDINGS",)

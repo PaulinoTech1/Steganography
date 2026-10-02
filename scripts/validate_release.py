@@ -23,6 +23,7 @@ if str(SOURCE) not in sys.path:
 
 from baseline_corpus import measure  # noqa: E402
 from evaluate import evaluate_manifest, evaluate_policy_actions, load_json, validate_rule_map, verify_protected_tests, verify_split_manifest  # noqa: E402
+from validate_resources import verify_resource_artifact  # noqa: E402
 
 
 def run(argv: list[str], *, cwd: Path, timeout: int = 240) -> str:
@@ -108,7 +109,7 @@ def load_json_text(value: str) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", choices=["baseline"], required=True)
+    parser.add_argument("--profile", choices=["baseline", "bounded"], required=True)
     args = parser.parse_args()
     try:
         manifest = load_json(ROOT / "evals" / "manifest.json")
@@ -138,15 +139,17 @@ def main() -> int:
         claims = load_json(ROOT / "evals" / "claims.json")
         mapped_claims = verify_claims(claims, metrics)
         negative = prove_negative_controls(manifest, protected, claims, metrics)
+        resource_summary = verify_resource_artifact() if args.profile == "bounded" else None
         suite_output = run([sys.executable, "-m", "pytest", "-q"], cwd=ROOT, timeout=240)
         match = re.search(r"(\d+) passed", suite_output)
-        if not match or int(match.group(1)) < 227:
-            raise ValueError(f"full suite missing or below P1 baseline: {suite_output[-1000:]}")
+        if not match or int(match.group(1)) < (248 if args.profile == "bounded" else 227):
+            raise ValueError(f"full suite missing or below {args.profile} baseline: {suite_output[-1000:]}")
         with tempfile.TemporaryDirectory(prefix="stegdetect-wheel-") as directory:
             installed = installed_wheel_smoke(Path(directory))
         if (installed["corpus"] != source_corpus or
                 installed["api_fixtures"] != evaluated["evaluated"] or
-                installed["policy_cases"] != evaluated["evaluated"] * len(policy_actions)):
+                installed["policy_cases"] != evaluated["evaluated"] * len(policy_actions) or
+                installed["bounded_cases"] != 3):
             raise ValueError("source/installed baseline mismatch")
         print(json.dumps({"profile": args.profile, "status": "PASS", "tests_passed": int(match.group(1)),
                           "development_fixtures": evaluated["evaluated"],
@@ -157,7 +160,9 @@ def main() -> int:
                           "generated_nonmalicious": missed,
                           "installed_api_fixtures": installed["api_fixtures"],
                           "installed_policy_cases": installed["policy_cases"],
-                          "installed_cli_cases": installed["cli_cases"]}, sort_keys=True))
+                          "installed_bounded_cases": installed["bounded_cases"],
+                          "installed_cli_cases": installed["cli_cases"],
+                          "resource_summary": resource_summary}, sort_keys=True))
         return 0
     except (AssertionError, ValueError, RuntimeError, subprocess.TimeoutExpired, OSError) as error:
         print(f"baseline validation FAILED: {error}", file=sys.stderr)

@@ -9,7 +9,7 @@ import sys
 
 from baseline_corpus import measure
 import stegdetect
-from stegdetect import Policy, analyze, inspect_text
+from stegdetect import Limits, Policy, analyze, inspect_bytes, inspect_text
 
 
 def main() -> int:
@@ -50,13 +50,30 @@ def main() -> int:
                               capture_output=True, text=True, encoding="utf-8", timeout=20)
         if proc.returncode != case["exit_code"] or json.loads(proc.stdout) != case["report"]:
             raise AssertionError(f"installed CLI mismatch: {case['argv']!r}, {proc.stderr!r}")
+    bounded = inspect_text("\u00a0" * 256 + "\u202e", limits=Limits(max_findings=6))
+    if (bounded.schema_version != 3 or bounded.status != "complete" or bounded.action != "block" or
+            bounded.finding_count_total != 257 or len(bounded.findings) != 6 or
+            not any(f.offset == 256 and f.category == "BIDI_OVERRIDE" for f in bounded.findings)):
+        raise AssertionError("installed bounded evidence mismatch")
+    if inspect_bytes(b"\xff").status != "invalid_input":
+        raise AssertionError("installed strict UTF-8 contract mismatch")
+    inspect_cli = subprocess.run([str(console), "--inspect", "policy=allow\u202e"], cwd=Path.cwd(),
+                                 env=env, capture_output=True, text=True,
+                                 encoding="utf-8", timeout=20)
+    cli_report = json.loads(inspect_cli.stdout)
+    if (inspect_cli.returncode != 3 or cli_report["schema_version"] != 3 or
+            cli_report["status"] != "complete" or
+            cli_report["action"] != "block" or cli_report["candidate_text"] is not None or
+            not inspect_cli.stdout.isascii()):
+        raise AssertionError("installed bounded CLI mismatch")
     corpus = measure(root / "tests" / "test_false_positives.py")
     expected = json.loads((root / "docs" / "robustness-corpus.json").read_text(encoding="utf-8"))
     if corpus != expected:
         raise AssertionError("installed legacy corpus counts changed")
     print(json.dumps({"installed_module": str(package_path), "api_fixtures": len(manifest["fixtures"]),
                       "policy_cases": len(manifest["fixtures"]) * 2,
-                      "cli_cases": len(snapshot["cases"]), "corpus": corpus}, sort_keys=True))
+                      "cli_cases": len(snapshot["cases"]), "bounded_cases": 3,
+                      "corpus": corpus}, sort_keys=True))
     return 0
 
 
