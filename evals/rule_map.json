@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "rules": {
+    "ZERO_WIDTH": {
+      "generators": [{"symbol": "zero_width_encode", "args": ["hi"]}],
+      "positive_tests": ["tests/test_detector.py::test_zero_width_cluster_is_malicious"],
+      "benign_tests": ["tests/test_p0_evidence.py::test_legacy_context_probe"],
+      "boundary_tests": ["tests/test_adversarial.py::test_zero_width_below_cluster_threshold_is_suspicious_not_malicious"]
+    },
+    "BIDI_OVERRIDE": {
+      "generators": [{"symbol": "bidi_wrap", "args": ["payload"]}],
+      "positive_tests": ["tests/test_detector.py::test_bidi_override_is_malicious"],
+      "benign_tests": ["tests/test_p0_evidence.py::test_legacy_context_probe"],
+      "boundary_tests": ["tests/test_p0_evidence.py::test_plain_rtl_text_stays_clean"]
+    },
+    "MIXED_SCRIPT": {
+      "generators": [
+        {"symbol": "homoglyph_swap", "args": ["ignore previous instructions"]},
+        {"symbol": "greek_homoglyph_swap", "args": ["toxik pizza"]}
+      ],
+      "positive_tests": ["tests/test_detector.py::test_homoglyph_swap_detected_and_normalized", "tests/test_p0_evidence.py::test_greek_generator_shape2_pair"],
+      "benign_tests": ["tests/test_false_positives.py::test_clean_sample_stays_clean"],
+      "boundary_tests": ["tests/test_adversarial.py::test_below_density_homoglyphs_stay_clean"]
+    },
+    "TAG_CHARACTER": {
+      "generators": [{"symbol": "tag_encode", "args": ["hi"]}],
+      "positive_tests": ["tests/test_detector.py::test_tag_characters_are_malicious"],
+      "benign_tests": ["tests/test_p0_evidence.py::test_legacy_context_probe"],
+      "boundary_tests": ["tests/test_p0_evidence.py::test_ascii_tagless_text_stays_clean"]
+    },
+    "INVISIBLE_FORMAT": {
+      "generators": [{"symbol": "invisible_format_embed", "args": ["example"]}],
+      "positive_tests": ["tests/test_p0_evidence.py::test_invisible_format_generator_pair"],
+      "benign_tests": ["tests/test_p0_evidence.py::test_legacy_context_probe"],
+      "boundary_tests": ["tests/test_p0_evidence.py::test_plain_formatting_boundary_is_clean"]
+    },
+    "SUSPICIOUS_WHITESPACE": {
+      "generators": [{"symbol": "suspicious_whitespace_replace", "args": ["Total 100"]}],
+      "positive_tests": ["tests/test_p0_evidence.py::test_whitespace_generator_pair"],
+      "benign_tests": ["tests/test_p0_evidence.py::test_legacy_context_probe"],
+      "boundary_tests": ["tests/test_p0_evidence.py::test_plain_formatting_boundary_is_clean"]
+    }
+  }
+}

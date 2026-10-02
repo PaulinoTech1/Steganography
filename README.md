@@ -21,6 +21,30 @@ fullwidth punctuation and clean Russian/English code-switching can change in
 the forwarded copy (pinned in `tests/test_fuzz.py`). This work
 preserves that policy; `clean` does not mean the text is unchanged.
 
+## Additive policy API (preview)
+
+`inspect_text()` separates Unicode evidence from a named decision policy. The
+default `Policy.BALANCED` preserves every allowed input exactly. A review,
+block, invalid input, or scan error has no forwarding candidate.
+
+```python
+from stegdetect import inspect_text
+
+inspection = inspect_text(untrusted_text)
+if inspection.status != "complete" or inspection.action != "allow":
+    hold_for_review_or_block(inspection.as_dict())
+else:
+    forward_to_llm(inspection.candidate_text)
+```
+
+This is a fixed **preview policy**, not a validated prompt-injection firewall.
+The 30 project-authored development fixtures include two benign examples held
+for review and three constructed attacks allowed by the balanced policy. They
+cannot establish a deployment false-positive or false-negative rate. See the
+[policy table and limitations](docs/P1_POLICY_CONTRACT.md) and the
+[versioned JSON schema](schemas/inspection-v2.schema.json). The legacy
+`analyze()` and CLI behavior below remain unchanged.
+
 ## Install
 
 ```bash
@@ -76,6 +100,22 @@ Acrostics, synonym substitution, and paraphrase encoding are not detected.
 pip install -e ".[dev]"
 pytest
 ```
+
+P0 adds an executable compatibility baseline:
+
+```bash
+python scripts/validate_release.py --profile baseline
+```
+
+It checks the full suite, development fixture outcomes, original
+test-file hashes, five broken-input controls, and an installed wheel outside the
+checkout. See [the detection contract](docs/DETECTION_CONTRACT.md),
+[generator map](docs/GENERATOR_RULE_MAP.md), and [claims ledger](docs/CLAIMS.md).
+The 30 P0 examples are project-authored development fixtures, with **zero
+independent sources or holdout examples**. Their counts are not a general
+false-positive or false-negative rate. The CI matrix is configured to run the
+baseline on Python 3.9–3.13 on Linux and Windows plus macOS 3.13;
+cross-platform support requires actual green CI runs.
 
 Test layout:
 

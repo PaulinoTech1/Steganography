@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "argv": ["hello"], "exit_code": 0,
+      "report": {
+        "verdict": "clean", "findings": [], "sanitized": "hello",
+        "stats": {"input_chars": 5, "sanitized_chars": 5, "chars_removed": 0,
+                  "finding_count": 0, "by_category": {}, "by_severity": {}, "residual_categories": []}
+      }
+    },
+    {
+      "argv": ["ab\u200b"], "exit_code": 2,
+      "report": {
+        "verdict": "suspicious", "sanitized": "ab",
+        "findings": [{"category": "ZERO_WIDTH", "severity": "medium", "offset": 2, "length": 1,
+                      "detail": "Invisible character: ZERO WIDTH SPACE", "codepoints": "U+200B"}],
+        "stats": {"input_chars": 3, "sanitized_chars": 2, "chars_removed": 1,
+                  "finding_count": 1, "by_category": {"ZERO_WIDTH": 1},
+                  "by_severity": {"medium": 1}, "residual_categories": []}
+      }
+    },
+    {
+      "argv": ["x\u202ey"], "exit_code": 2,
+      "report": {
+        "verdict": "malicious", "sanitized": "xy",
+        "findings": [{"category": "BIDI_OVERRIDE", "severity": "high", "offset": 1, "length": 1,
+                      "detail": "Bidirectional control: RIGHT-TO-LEFT OVERRIDE. Displayed order may differ from logical order.",
+                      "codepoints": "U+202E"}],
+        "stats": {"input_chars": 3, "sanitized_chars": 2, "chars_removed": 1,
+                  "finding_count": 1, "by_category": {"BIDI_OVERRIDE": 1},
+                  "by_severity": {"high": 1}, "residual_categories": []}
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "baseline_commit": "d876974443e1e51ef8f420d7db1b6d25abeb0595",
+  "sha256": {
+    "tests/test_adversarial.py": "b7ed4962e0f62bb4ad9420fb19ebbc298afa7401d62a7406d52092ce37797735",
+    "tests/test_canonicalize.py": "4037a30ba50a35a6a197dc66d2d724ba67317e011a9b49cb3e9053d9df1da1b5",
+    "tests/test_cli.py": "d720546b6b8ab189295f72994975e04842b7e49bbf4694220efe6ea53c7e23bf",
+    "tests/test_detector.py": "5376a9a56c0d7ef2c5f66bb83f13acf137b4b22d43221ab1e7dadc15f64875fc",
+    "tests/test_false_positives.py": "9f67d5f296ba0f2ea3c4b86b6e3753a25dc85005cc4fb68e3dd7d368e090a9e6",
+    "tests/test_fuzz.py": "a26a9d96e05047067fed00168637352775575af95367bf67538a66432b01b0a7",
+    "tests/test_historical.py": "573034b49883f21e8c92da932e1ab5b26c81a7da9d246fc21940b6a70ed639ab",
+    "tests/test_robustness.py": "34afea9aac7e50861ee9e08f0d646e1273c3cd576be97292058eb02c70576135"
+  }
+}

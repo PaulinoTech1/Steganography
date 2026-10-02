@@ -26,7 +26,7 @@ classifiers = [
 urls = { Homepage = "https://github.com/PaulinoTech1/Steganography" }
 
 [project.optional-dependencies]
-dev = ["pytest", "hypothesis>=6"]
+dev = ["pytest", "hypothesis>=6", "jsonschema>=4", "wheel"]
 
 [project.scripts]
 stegdetect = "stegdetect.cli:main"

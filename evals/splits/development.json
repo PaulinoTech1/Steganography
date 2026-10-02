@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "development_ids": [
+    "empty", "plain", "persian", "indic", "family", "flag", "isolate", "rtl",
+    "override", "nbsp", "thin", "soft", "hangul", "mixed_cyrillic",
+    "mixed_greek", "greek_all", "code_switch", "below_density", "cjk",
+    "math", "code", "quote", "plain_injection", "variation", "interlinear",
+    "nfkc_a", "nfkc_b", "zw3", "zw4", "eof"
+  ],
+  "holdout_ids": []
+}

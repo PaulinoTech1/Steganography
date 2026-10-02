@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "stegdetect inspection report v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_id", "status", "action", "reason_codes",
+               "findings", "finding_count_total", "findings_truncated", "scan_complete",
+               "candidate_text", "transformation"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "policy_id": {"enum": ["balanced-v1", "legacy-verdict-v1"]},
+    "status": {"enum": ["complete", "invalid_input", "error"]},
+    "action": {"enum": ["allow", "review", "block", null]},
+    "reason_codes": {"type": "array", "minItems": 1, "uniqueItems": true,
+                     "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "finding_count_total": {"type": "integer", "minimum": 0},
+    "findings_truncated": {"const": false},
+    "scan_complete": {"type": "boolean"},
+    "candidate_text": {"type": ["string", "null"]},
+    "transformation": {"const": "preserve"}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "complete"}}},
+     "then": {"properties": {"action": {"enum": ["allow", "review", "block"]},
+                             "scan_complete": {"const": true}}}},
+    {"if": {"properties": {"status": {"enum": ["invalid_input", "error"]}}},
+     "then": {"properties": {"action": {"const": null}, "candidate_text": {"const": null},
+                             "scan_complete": {"const": false}, "finding_count_total": {"const": 0},
+                             "findings": {"maxItems": 0}}}},
+    {"if": {"properties": {"action": {"const": "allow"}}},
+     "then": {"properties": {"status": {"const": "complete"}, "scan_complete": {"const": true},
+                             "candidate_text": {"type": "string"}}}},
+    {"if": {"properties": {"action": {"enum": ["review", "block"]}}},
+     "then": {"properties": {"status": {"const": "complete"}, "scan_complete": {"const": true},
+                             "candidate_text": {"const": null}}}}
+  ],
+  "$defs": {
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_id", "category", "severity", "offset", "length", "detail", "codepoints"],
+      "properties": {
+        "rule_id": {"type": "string", "pattern": "^unicode\\.[a-z_]+\\.v1$"},
+        "category": {"enum": ["ZERO_WIDTH", "BIDI_OVERRIDE", "MIXED_SCRIPT",
+                              "TAG_CHARACTER", "INVISIBLE_FORMAT", "SUSPICIOUS_WHITESPACE"]},
+        "severity": {"enum": ["low", "medium", "high"]},
+        "offset": {"type": "integer", "minimum": 0},
+        "length": {"type": "integer", "minimum": 1},
+        "detail": {"type": "string"},
+        "codepoints": {"type": "string", "pattern": "^U\\+[0-9A-F]{4,6}$"}
+      }
+    }
+  }
+}

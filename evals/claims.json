@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "claims": {
+    "mapped_legacy_categories": {"metric": "mapped_rules", "expected": 6},
+    "protected_existing_test_files": {"metric": "protected_tests", "expected": 8},
+    "development_probe_documents": {"metric": "evaluated", "expected": 30},
+    "independent_source_groups_in_probe_corpus": {"metric": "independent_source_groups", "expected": 0},
+    "legacy_clean_sample_count": {"metric": "legacy_clean_samples", "expected": 16},
+    "legacy_nonclean_clean_samples": {"metric": "legacy_nonclean_clean_samples", "expected": 0},
+    "generated_attack_count": {"metric": "generated_attack_samples", "expected": 800},
+    "generated_nonmalicious_count": {"metric": "generated_nonmalicious", "expected": 0},
+    "intentional_density_evasion_count": {"metric": "intentional_density_evasions", "expected": 8}
+  }
+}
