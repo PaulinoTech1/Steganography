@@ -59,9 +59,10 @@ the constructed attacks it allowed. No held-action or safe-forwarding recall
 claim follows from this set.
 
 The original Unicode scanner still materializes all findings, while the
-additive API has P2 admission, evidence, and output limits. Context-sensitive
-emoji/joiner treatment, targeted transformations, and an enforcement-grade
-policy require later gates. `clean` and `allow` do not rule out plain-text injection or
+additive API has P2 admission, evidence, and output limits. An opt-in
+[`contextual-v1` preview](UNICODE_CONTEXT.md) handles selected legitimate
+Unicode constructions without changing `balanced-v1`. Targeted transformations
+and an enforcement-grade policy require later gates. `clean` and `allow` do not rule out plain-text injection or
 an exploit at an LLM boundary. Applications must make the final call decision.
 
 Local validation on Windows/Python 3.10.10 passed on 2026-10-02:

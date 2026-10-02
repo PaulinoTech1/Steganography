@@ -181,6 +181,31 @@ def evaluate_policy_actions(manifest: dict) -> dict:
     return results
 
 
+def evaluate_contextual_actions(manifest: dict, goldens: dict,
+                                clean_samples: dict[str, str]) -> dict:
+    """Literal opt-in outcomes and descriptive selected-corpus counts."""
+    if (goldens.get("schema_version") != 1 or
+            goldens.get("policy_id") != "contextual-v1" or
+            set(goldens.get("actions", {})) != {row["id"] for row in manifest["fixtures"]}):
+        raise ValueError("contextual action golden inventory mismatch")
+    counts = {intent: {action: 0 for action in ("allow", "review", "block")}
+              for intent in ("benign", "constructed_attack", "unknown")}
+    for fixture in manifest["fixtures"]:
+        report = inspect_text(fixture["text"], policy=Policy.CONTEXTUAL)
+        expected = goldens["actions"][fixture["id"]]
+        if report.status != "complete" or report.action != expected:
+            raise ValueError(f"contextual outcome mismatch: {fixture['id']}")
+        if report.candidate_text != (fixture["text"] if expected == "allow" else None):
+            raise ValueError(f"contextual forwarding mismatch: {fixture['id']}")
+        counts[fixture["intent_label"]][expected] += 1
+    clean_held = sum(inspect_text(text, policy=Policy.CONTEXTUAL).action != "allow"
+                     for text in clean_samples.values())
+    return {"counts_by_project_label": counts,
+            "selected_clean_samples": len(clean_samples),
+            "selected_clean_held": clean_held,
+            "independent_accuracy_claim_supported": False}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=ROOT / "evals" / "manifest.json")

@@ -35,7 +35,8 @@ def generate() -> str:
             rows.append(" ".join(sequence))
     if len(rows) != 1617 or len(rows) != len(set(rows)):
         raise ValueError("unexpected Emoji 18 sequence count or duplicate")
-    return ("# Unicode Emoji 18.0 RGI ZWJ and tag sequences; see docs/UNICODE_CONTEXT.md\n"
+    return ("# Derived from Unicode Emoji 18.0; Copyright 1991-2026 Unicode, Inc.\n"
+            "# Unicode License v3: see UNICODE-LICENSE.txt and docs/UNICODE_CONTEXT.md\n"
             + "\n".join(rows) + "\n")
 
 

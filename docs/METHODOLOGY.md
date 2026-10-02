@@ -128,6 +128,8 @@ Install development dependencies, then run:
 python -m pip install -e ".[dev]"
 python benchmarks/resources.py --output docs/p2-resource-results.json
 python scripts/validate_resources.py --record
+python benchmarks/context_resources.py --output docs/p3-context-results.json
+python scripts/validate_context_resources.py
 python scripts/validate_release.py --profile bounded
 ```
 
@@ -156,9 +158,47 @@ For a quick diagnostic, pass a subset such as `--cases ordinary zero_width
 its p95 as the full gate. Repeat the full profile on reference runners before
 claiming a cross-platform budget or latency target. There is no latency SLA.
 
+The separate contextual preview measures four 1,048,576-codepoint
+constructions: repeated valid family emoji, Persian joining, simple RTL
+isolates, and an unrecognized ZWJ. Each runs in a killable worker with two
+warmups and 10 measured inspection-plus-serialization trials, then records
+OS peak RSS. At 10 trials, nearest-rank p95 is simply the maximum and is
+especially weak as a tail estimate. The artifact embeds hashes of the
+measured scanner, policy, context module/data, and benchmark script;
+`scripts/validate_context_resources.py` checks complete rows, raw trials,
+decisions, and current source hashes. Neither profile measures an entire
+RAG application or establishes a resource SLA.
+
 When scanner, policy, schema, corpus, or limits change, update the literal
 contract first, rerun affected negative controls and installed-wheel checks,
 then measure resources again. Record failures and limitations rather than
 editing old goldens to erase them. Changing enforcement defaults needs
 independently sourced benign/adversarial holdouts, application-level
 no-forwarding tests, and the later release gates.
+
+## Unicode context and developer workflow process
+
+The opt-in policy's [contract and data provenance](UNICODE_CONTEXT.md) pin
+Emoji 18.0 source files, checksums, generator, license, exact valid
+constructions, and malformed neighbors. The original evidence and default
+policy are frozen separately; the new policy gets literal action goldens and
+its own schema version. Compare both policies on the same development
+fixtures and report held benign and allowed attack numerators separately.
+Do not treat RGI validity as a benign-intent label.
+
+The [developer workflow guide](DEVELOPER_WORKFLOWS.md) defines byte/record
+budgets, stream format, exit codes, and safe explanations. Its tests use a
+model-call recorder to verify that a held document or tool result cannot be
+forwarded through the examples. A real integration must repeat that check at
+its own final model-call boundary; a library unit test cannot verify a host
+application's routing. Review batch partial-output and terminal escaping
+cases before claiming CLI usability.
+
+The final local bounded preview gate on 2026-10-02 reported 318 passing tests,
+30 contextual installed-wheel fixture outcomes, two installed developer CLI
+cases, 12 claim mappings, and six deliberately failing negative controls.
+Its default-path resource receipt
+covered 21 rows and 1,610 trials; the contextual artifact covered four rows
+and 40 trials. Both recorded zero timeouts. Other operating systems, Python
+versions, independent language review, and production model-call routing
+remain unverified locally.

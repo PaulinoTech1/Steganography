@@ -9,6 +9,9 @@
     "legacy_nonclean_clean_samples": {"metric": "legacy_nonclean_clean_samples", "expected": 0},
     "generated_attack_count": {"metric": "generated_attack_samples", "expected": 800},
     "generated_nonmalicious_count": {"metric": "generated_nonmalicious", "expected": 0},
-    "intentional_density_evasion_count": {"metric": "intentional_density_evasions", "expected": 8}
+    "intentional_density_evasion_count": {"metric": "intentional_density_evasions", "expected": 8},
+    "contextual_development_benign_held": {"metric": "contextual_benign_held", "expected": 0},
+    "contextual_development_attacks_allowed": {"metric": "contextual_attacks_allowed", "expected": 3},
+    "contextual_selected_clean_held": {"metric": "contextual_selected_clean_held", "expected": 0}
   }
 }

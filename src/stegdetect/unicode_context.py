@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
+import hashlib
 from pathlib import Path
 import unicodedata
 
@@ -14,6 +15,7 @@ from .unicode_scan import INVISIBLE_FORMAT, ZERO_WIDTH, _is_tag
 
 
 _DATA = Path(__file__).with_name("data") / "emoji-context-18.0.txt"
+_DATA_SHA256 = "3c3d5f104f219c08c47333f80fc3d29364f5ff5ef536afd0c884aa0fb851b3fc"
 _CARRIER_NEIGHBORS = {"\u200c", "\u200d", "\ufe0e", "\ufe0f"}
 _RTL_OPENERS = {"\u2067", "\u2068"}  # RLI and FSI; LRI stays under review.
 _ISOLATE_OPENERS = _RTL_OPENERS | {"\u2066"}
@@ -39,7 +41,10 @@ class ContextSummary:
 def _emoji_trie() -> dict:
     trie: dict = {}
     rows = 0
-    for line in _DATA.read_text(encoding="ascii").splitlines():
+    raw = _DATA.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != _DATA_SHA256:
+        raise ValueError("bundled Emoji 18 context data checksum mismatch")
+    for line in raw.decode("ascii").splitlines():
         if not line or line.startswith("#"):
             continue
         sequence = "".join(chr(int(value, 16)) for value in line.split())

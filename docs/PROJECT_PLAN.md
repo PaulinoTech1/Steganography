@@ -1,8 +1,9 @@
 # stegdetect: a practical Unicode security toolkit
 
 Planning date: 2026-10-02. Baseline: `d876974443e1e51ef8f420d7db1b6d25abeb0595`.
-Status: roadmap; P0 baseline, additive P1 policy API, and bounded P2 path are
-implemented locally. Later phases remain proposals; this document does not
+Status: roadmap; P0 baseline, additive P1 policy API, bounded P2 path, and
+scoped P3 Unicode context/P4 developer workflow previews are implemented
+locally. Later gates remain proposals; this document does not
 authorize a release. See [P0_STATUS.md](P0_STATUS.md) and
 [P1_POLICY_CONTRACT.md](P1_POLICY_CONTRACT.md) for policy scope, and
 [P2_RESOURCE_RESULTS.md](P2_RESOURCE_RESULTS.md) for local resource observations.
@@ -298,6 +299,12 @@ No transformed text is forwarded on an incomplete residual scan.
 
 ### P3: Unicode correctness and carrier coverage
 
+Local preview: `contextual-v1` recognizes exact Emoji 18.0 ZWJ/tag sequences,
+narrow Arabic/Devanagari joining, and simple RTL isolates. See
+[UNICODE_CONTEXT.md](UNICODE_CONTEXT.md) for data provenance, literal
+development outcomes, malformed boundaries, and remaining FP/intent limits.
+Additional carriers and independent holdout gates below remain proposals.
+
 Start with exact version-pinned emoji sequence data and well-scoped joiner/isolate
 context diagnostics. Pin Unicode source URLs, checksums, generation command, version,
 and license. Updates occur in reviewed maintenance PRs, never runtime downloads.
@@ -318,6 +325,11 @@ uses overlap too much, publish the failed experiment and keep it out of enforcem
 [Unicode variation sequences](https://unicode.org/faq/vs.html).
 
 ### P4: developer workflows that feel finished
+
+Local preview: `--explain`, bounded JSONL batches, and two framework-independent
+model-call gates are implemented. See
+[DEVELOPER_WORKFLOWS.md](DEVELOPER_WORKFLOWS.md). Production-host integration,
+human usability study, and release gates remain open.
 
 Keep legacy CLI behavior. Add explicit `inspect`/`--v2` paths with schema-v2 JSON,
 `--explain`, named policy/transform options, and complete-document JSONL batch mode.

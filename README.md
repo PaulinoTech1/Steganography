@@ -64,10 +64,20 @@ The legacy CLI modes below retain their existing exits and are not
 resource-bounded. See the [reviewer methodology](docs/METHODOLOGY.md) for
 measurement and validation.
 
+For legitimate emoji sequences, joining controls, and simple RTL isolates,
+opt in with `inspect_text(text, policy=Policy.CONTEXTUAL)` or
+`stegdetect --inspect --contextual`. This keeps all original findings and
+uses [schema v4](schemas/inspection-v4.schema.json); the default policy and
+schema v3 stay unchanged. The [Unicode context contract](docs/UNICODE_CONTEXT.md)
+states exact recognition boundaries and measured development-set outcomes.
+For scripts and applications, see [CLI batches, explanations, and tested
+RAG/tool-result gates](docs/DEVELOPER_WORKFLOWS.md).
+
 Run `python scripts/validate_release.py --profile bounded` to verify the full
-suite, installed wheel, and the source-bound resource artifact. The measured
-Windows results are in [P2 resource observations](docs/P2_RESOURCE_RESULTS.md);
-they are not a cross-platform latency or memory guarantee.
+suite, installed wheel, and both source-bound resource artifacts. The measured
+Windows results are in [P2 default-path](docs/P2_RESOURCE_RESULTS.md) and
+[P3 context](docs/P3_CONTEXT_RESULTS.md) observations; they are not
+cross-platform latency or memory guarantees.
 
 ## Install
 

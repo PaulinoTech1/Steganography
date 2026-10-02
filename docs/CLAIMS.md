@@ -31,6 +31,26 @@ counts are recomputed by `scripts/evaluate.py` and checked against literal
 
 P2 resource observations are in [`P2_RESOURCE_RESULTS.md`](P2_RESOURCE_RESULTS.md),
 with 21 workload/size rows and 1,610 raw trials from one Windows/Python 3.10.10
-run. The largest measured p95 was 1.815 s and the largest separate-worker peak
-working set was 46.0 MiB. Neither number is a cross-platform guarantee or
+run. The largest measured p95 was 1.694 s and the largest separate-worker peak
+working set was 46.5 MiB. Neither number is a cross-platform guarantee or
 latency SLA.
+
+The opt-in `contextual-v1` policy allowed all 17 project-labeled benign
+development fixtures and all 16 selected clean samples. Among nine
+project-constructed attacks, it allowed three, reviewed four, and blocked
+two. Literal outcomes are pinned in `evals/contextual-actions.json` and
+verified in `tests/test_unicode_context.py`. These are descriptive counts;
+there are no independent deployment FP/FN rates or semantic-safety claims.
+`evals/claims.json` maps the three contextual counts to the bounded validator,
+which also rejects a deliberately altered contextual action golden.
+
+The CLI `--jsonl` mode and the two framework-independent examples are tested
+for per-document and aggregate caps and for withholding held documents at a
+stubbed final model-call boundary. This does not validate a production RAG
+system or tool host.
+
+The separate [`P3_CONTEXT_RESULTS.md`](P3_CONTEXT_RESULTS.md) profile recorded
+40 timed trials across four one-megacharacter contextual workloads with no
+timeouts or decision mismatches. Its largest observed p95 was 1.809 s and
+largest process peak was 43.4 MiB on the same Windows runner. The 10-trial
+p95 is the sample maximum and cannot establish a tail guarantee.

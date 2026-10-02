@@ -1,4 +1,5 @@
-# Unicode Emoji 18.0 RGI ZWJ and tag sequences; see docs/UNICODE_CONTEXT.md
+# Derived from Unicode Emoji 18.0; Copyright 1991-2026 Unicode, Inc.
+# Unicode License v3: see UNICODE-LICENSE.txt and docs/UNICODE_CONTEXT.md
 1F468 200D 2764 FE0F 200D 1F468
 1F468 200D 2764 FE0F 200D 1F48B 200D 1F468
 1F468 200D 1F466

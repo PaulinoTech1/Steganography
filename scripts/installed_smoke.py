@@ -22,6 +22,8 @@ def main() -> int:
     if not package_path.is_relative_to(Path(sys.prefix).resolve()):
         raise RuntimeError(f"not importing from isolated environment: {package_path}")
     manifest = json.loads((root / "evals" / "manifest.json").read_text(encoding="utf-8"))
+    contextual_actions = json.loads((root / "evals" / "contextual-actions.json").read_text(
+        encoding="utf-8"))["actions"]
     for fixture in manifest["fixtures"]:
         report = analyze(fixture["text"])
         actual = {"verdict": report.verdict,
@@ -36,6 +38,11 @@ def main() -> int:
                     inspected.action != fixture["expected_actions"][key] or
                     inspected.candidate_text != (fixture["text"] if inspected.action == "allow" else None)):
                 raise AssertionError(f"installed policy mismatch: {key}/{fixture['id']}")
+        contextual = inspect_text(fixture["text"], policy=Policy.CONTEXTUAL)
+        if (contextual.schema_version != 4 or
+                contextual.action != contextual_actions[fixture["id"]] or
+                contextual.candidate_text != (fixture["text"] if contextual.action == "allow" else None)):
+            raise AssertionError(f"installed contextual mismatch: {fixture['id']}")
     snapshot = json.loads((root / "evals" / "fixtures" / "legacy_cli.json").read_text(encoding="utf-8"))
     if snapshot.get("schema_version") != 1 or not snapshot.get("cases"):
         raise AssertionError("CLI snapshot missing or malformed")
@@ -66,13 +73,30 @@ def main() -> int:
             cli_report["action"] != "block" or cli_report["candidate_text"] is not None or
             not inspect_cli.stdout.isascii()):
         raise AssertionError("installed bounded CLI mismatch")
+    flag = "\U0001f3f4" + "".join(chr(0xE0000 + ord(c)) for c in "gbeng") + "\U000e007f"
+    contextual_cli = subprocess.run([str(console), "--inspect", "--contextual", flag],
+                                    cwd=Path.cwd(), env=env, capture_output=True, text=True,
+                                    encoding="utf-8", timeout=20)
+    if (contextual_cli.returncode != 0 or
+            json.loads(contextual_cli.stdout)["candidate_text"] != flag or
+            json.loads(contextual_cli.stdout)["schema_version"] != 4):
+        raise AssertionError("installed contextual CLI mismatch")
+    batch_cli = subprocess.run([str(console), "--inspect", "--jsonl", "-"],
+                               input='"safe"\n"bad\\u202e"\n', cwd=Path.cwd(), env=env,
+                               capture_output=True, text=True, encoding="utf-8", timeout=20)
+    batch_reports = [json.loads(line) for line in batch_cli.stdout.splitlines()]
+    if (batch_cli.returncode != 3 or len(batch_reports) != 2 or
+            [row["action"] for row in batch_reports] != ["allow", "block"]):
+        raise AssertionError("installed JSONL mismatch")
     corpus = measure(root / "tests" / "test_false_positives.py")
     expected = json.loads((root / "docs" / "robustness-corpus.json").read_text(encoding="utf-8"))
     if corpus != expected:
         raise AssertionError("installed legacy corpus counts changed")
     print(json.dumps({"installed_module": str(package_path), "api_fixtures": len(manifest["fixtures"]),
                       "policy_cases": len(manifest["fixtures"]) * 2,
+                      "contextual_cases": len(manifest["fixtures"]),
                       "cli_cases": len(snapshot["cases"]), "bounded_cases": 3,
+                      "developer_cli_cases": 2,
                       "corpus": corpus}, sort_keys=True))
     return 0
 

@@ -18,6 +18,7 @@ RECEIPT = ROOT / "docs" / "p2-resource-receipt.json"
 SOURCES = (
     "src/stegdetect/inspection.py", "src/stegdetect/bounded_scan.py",
     "src/stegdetect/policy.py", "src/stegdetect/unicode_scan.py",
+    "src/stegdetect/unicode_context.py", "src/stegdetect/data/emoji-context-18.0.txt",
     "benchmarks/resources.py",
 )
 CASES = ("ordinary", "zero_width", "nested_bidi", "mixed_script",

@@ -90,6 +90,11 @@ def decide_contextual(scan: ScanResult, context: ContextSummary) -> tuple[str, t
     if scan.has_explicit_override:
         return "block", ("BIDI_EXPLICIT_OVERRIDE",)
     counts = scan.category_counts
+    if (context.recognized_zero_width > counts.get("ZERO_WIDTH", 0) or
+            context.recognized_tags > counts.get("TAG_CHARACTER", 0) or
+            context.recognized_bidi > counts.get("BIDI_OVERRIDE", 0) or
+            context.unrecognized_zwj < 0):
+        raise ValueError("context counts exceed scanned evidence")
     review: set[str] = set()
     if counts.get("BIDI_OVERRIDE", 0) > context.recognized_bidi:
         review.add("BIDI_CONTROL")
@@ -101,6 +106,9 @@ def decide_contextual(scan: ScanResult, context: ContextSummary) -> tuple[str, t
         review.add("UNRECOGNIZED_JOINER")
     if counts.get("ZERO_WIDTH", 0) - context.recognized_zero_width >= 4:
         review.add("ZERO_WIDTH_CLUSTER")
+    if set(counts) - {"ZERO_WIDTH", "BIDI_OVERRIDE", "TAG_CHARACTER", "MIXED_SCRIPT",
+                       "INVISIBLE_FORMAT", "SUSPICIOUS_WHITESPACE"}:
+        review.add("UNCLASSIFIED_EVIDENCE")
     if review:
         return "review", tuple(sorted(review))
     if context.any_recognized:

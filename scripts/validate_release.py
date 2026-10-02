@@ -1,4 +1,4 @@
-"""P0 baseline validator. Other planned release profiles are not implemented yet.
+"""Baseline and bounded-preview validators; later release gates remain proposals.
 
 Run from any directory: python scripts/validate_release.py --profile baseline
 """
@@ -21,9 +21,10 @@ SOURCE = ROOT / "src"
 if str(SOURCE) not in sys.path:
     sys.path.insert(0, str(SOURCE))
 
-from baseline_corpus import measure  # noqa: E402
-from evaluate import evaluate_manifest, evaluate_policy_actions, load_json, validate_rule_map, verify_protected_tests, verify_split_manifest  # noqa: E402
+from baseline_corpus import _clean_samples, measure  # noqa: E402
+from evaluate import evaluate_contextual_actions, evaluate_manifest, evaluate_policy_actions, load_json, validate_rule_map, verify_protected_tests, verify_split_manifest  # noqa: E402
 from validate_resources import verify_resource_artifact  # noqa: E402
+from validate_context_resources import verify_context_resources  # noqa: E402
 
 
 def run(argv: list[str], *, cwd: Path, timeout: int = 240) -> str:
@@ -47,7 +48,9 @@ def verify_claims(claims: dict, metrics: dict) -> int:
     return len(claims["claims"])
 
 
-def prove_negative_controls(manifest: dict, protected: Path, claims: dict, metrics: dict) -> list[str]:
+def prove_negative_controls(manifest: dict, contextual_goldens: dict,
+                            clean_samples: dict, protected: Path,
+                            claims: dict, metrics: dict) -> list[str]:
     def must_fail(label: str, action) -> None:
         try:
             action()
@@ -63,6 +66,11 @@ def prove_negative_controls(manifest: dict, protected: Path, claims: dict, metri
     mutated = copy.deepcopy(manifest)
     mutated["fixtures"][0]["expected_actions"]["balanced"] = "block"
     must_fail("changed_policy_outcome", lambda: evaluate_policy_actions(mutated))
+    altered_context = copy.deepcopy(contextual_goldens)
+    first_id = manifest["fixtures"][0]["id"]
+    altered_context["actions"][first_id] = "block"
+    must_fail("changed_contextual_outcome", lambda: evaluate_contextual_actions(
+        manifest, altered_context, clean_samples))
     mutated = copy.deepcopy(manifest)
     del mutated["fixtures"][0]["source_group"]
     must_fail("missing_source_provenance", lambda: evaluate_manifest(mutated))
@@ -115,6 +123,9 @@ def main() -> int:
         manifest = load_json(ROOT / "evals" / "manifest.json")
         evaluated = evaluate_manifest(manifest)
         policy_actions = evaluate_policy_actions(manifest)
+        contextual_goldens = load_json(ROOT / "evals" / "contextual-actions.json")
+        clean_samples = _clean_samples(ROOT / "tests" / "test_false_positives.py")
+        contextual = evaluate_contextual_actions(manifest, contextual_goldens, clean_samples)
         verify_split_manifest(manifest)
         protected = ROOT / "evals" / "protected_tests.json"
         protected_count = verify_protected_tests(ROOT, protected)
@@ -135,21 +146,29 @@ def main() -> int:
             "generated_attack_samples": attack_count,
             "generated_nonmalicious": missed,
             "intentional_density_evasions": source_corpus["deliberate_below_density_evasion"]["undetected"],
+            "contextual_benign_held": (contextual["counts_by_project_label"]["benign"]["review"] +
+                                       contextual["counts_by_project_label"]["benign"]["block"]),
+            "contextual_attacks_allowed": contextual["counts_by_project_label"]["constructed_attack"]["allow"],
+            "contextual_selected_clean_held": contextual["selected_clean_held"],
         }
         claims = load_json(ROOT / "evals" / "claims.json")
         mapped_claims = verify_claims(claims, metrics)
-        negative = prove_negative_controls(manifest, protected, claims, metrics)
+        negative = prove_negative_controls(manifest, contextual_goldens,
+                                           clean_samples, protected, claims, metrics)
         resource_summary = verify_resource_artifact() if args.profile == "bounded" else None
+        context_resource_summary = verify_context_resources() if args.profile == "bounded" else None
         suite_output = run([sys.executable, "-m", "pytest", "-q"], cwd=ROOT, timeout=240)
         match = re.search(r"(\d+) passed", suite_output)
-        if not match or int(match.group(1)) < (248 if args.profile == "bounded" else 227):
+        if not match or int(match.group(1)) < (318 if args.profile == "bounded" else 227):
             raise ValueError(f"full suite missing or below {args.profile} baseline: {suite_output[-1000:]}")
         with tempfile.TemporaryDirectory(prefix="stegdetect-wheel-") as directory:
             installed = installed_wheel_smoke(Path(directory))
         if (installed["corpus"] != source_corpus or
                 installed["api_fixtures"] != evaluated["evaluated"] or
                 installed["policy_cases"] != evaluated["evaluated"] * len(policy_actions) or
-                installed["bounded_cases"] != 3):
+                installed["bounded_cases"] != 3 or
+                installed["contextual_cases"] != evaluated["evaluated"] or
+                installed["developer_cli_cases"] != 2):
             raise ValueError("source/installed baseline mismatch")
         print(json.dumps({"profile": args.profile, "status": "PASS", "tests_passed": int(match.group(1)),
                           "development_fixtures": evaluated["evaluated"],
@@ -160,12 +179,17 @@ def main() -> int:
                           "generated_nonmalicious": missed,
                           "installed_api_fixtures": installed["api_fixtures"],
                           "installed_policy_cases": installed["policy_cases"],
+                          "installed_contextual_cases": installed["contextual_cases"],
+                          "contextual_development_counts": contextual["counts_by_project_label"],
+                          "contextual_selected_clean_held": contextual["selected_clean_held"],
+                          "installed_developer_cli_cases": installed["developer_cli_cases"],
                           "installed_bounded_cases": installed["bounded_cases"],
                           "installed_cli_cases": installed["cli_cases"],
-                          "resource_summary": resource_summary}, sort_keys=True))
+                          "resource_summary": resource_summary,
+                          "context_resource_summary": context_resource_summary}, sort_keys=True))
         return 0
     except (AssertionError, ValueError, RuntimeError, subprocess.TimeoutExpired, OSError) as error:
-        print(f"baseline validation FAILED: {error}", file=sys.stderr)
+        print(f"{args.profile} validation FAILED: {error}", file=sys.stderr)
         return 1
 
 
