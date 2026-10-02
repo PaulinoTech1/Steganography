@@ -46,8 +46,9 @@ which also rejects a deliberately altered contextual action golden.
 
 The CLI `--jsonl` mode and the two framework-independent examples are tested
 for per-document and aggregate caps and for withholding held documents at a
-stubbed final model-call boundary. This does not validate a production RAG
-system or tool host.
+stubbed final model-call boundary. The installed-wheel release gate repeats
+six allow/hold/cap checks against repository examples loaded outside the
+checkout. This does not validate a production RAG system or tool host.
 
 The separate [`P3_CONTEXT_RESULTS.md`](P3_CONTEXT_RESULTS.md) profile recorded
 40 timed trials across four one-megacharacter contextual workloads with no

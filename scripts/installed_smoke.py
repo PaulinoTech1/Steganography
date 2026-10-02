@@ -1,6 +1,7 @@
 """Execute inside an isolated venv from a directory outside the source checkout."""
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,47 @@ import sys
 from baseline_corpus import measure
 import stegdetect
 from stegdetect import Limits, Policy, analyze, inspect_bytes, inspect_text
+
+
+def _load_example(path: Path, name: str):
+    """Load a repository example while its stegdetect import stays wheel-backed."""
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load example: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _check_installed_examples(root: Path) -> int:
+    rag = _load_example(root / "examples" / "rag_gate.py", "rag_gate_example")
+    tool = _load_example(root / "examples" / "tool_result_gate.py", "tool_result_gate_example")
+    calls: list[str] = []
+
+    def model_call(text: str) -> str:
+        calls.append(text)
+        return "recorded"
+
+    held = rag.answer_with_documents(
+        "Question", [("trusted-a", "ordinary"), ("trusted-b", "x\u202e")], model_call)
+    if held["status"] != "held" or calls:
+        raise AssertionError("installed RAG example forwarded a held document")
+    allowed = rag.answer_with_documents("Question", [("trusted-a", "ordinary")], model_call)
+    if (allowed["status"] != "sent" or len(calls) != 1 or
+            "ordinary" not in calls[0] or "trusted-a" in calls[0]):
+        raise AssertionError("installed RAG example changed the model boundary")
+    capped = rag.answer_with_documents("Question", [("trusted-a", "ordinary")],
+                                       model_call, max_prompt_chars=8)
+    if capped["status"] != "held" or len(calls) != 1:
+        raise AssertionError("installed RAG example ignored its prompt cap")
+    if tool.continue_with_tool_result("x\u202e", model_call)["status"] != "held" or len(calls) != 1:
+        raise AssertionError("installed tool example forwarded a held result")
+    if tool.continue_with_tool_result("x\ud800", model_call)["status"] != "held" or len(calls) != 1:
+        raise AssertionError("installed tool example forwarded invalid Unicode")
+    sent = tool.continue_with_tool_result("exact tool text", model_call)
+    if sent["status"] != "sent" or len(calls) != 2 or calls[1] != "exact tool text":
+        raise AssertionError("installed tool example changed an allowed result")
+    return 6
 
 
 def main() -> int:
@@ -88,6 +130,7 @@ def main() -> int:
     if (batch_cli.returncode != 3 or len(batch_reports) != 2 or
             [row["action"] for row in batch_reports] != ["allow", "block"]):
         raise AssertionError("installed JSONL mismatch")
+    integration_cases = _check_installed_examples(root)
     corpus = measure(root / "tests" / "test_false_positives.py")
     expected = json.loads((root / "docs" / "robustness-corpus.json").read_text(encoding="utf-8"))
     if corpus != expected:
@@ -97,6 +140,7 @@ def main() -> int:
                       "contextual_cases": len(manifest["fixtures"]),
                       "cli_cases": len(snapshot["cases"]), "bounded_cases": 3,
                       "developer_cli_cases": 2,
+                      "installed_integration_cases": integration_cases,
                       "corpus": corpus}, sort_keys=True))
     return 0
 

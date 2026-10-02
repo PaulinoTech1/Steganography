@@ -327,7 +327,8 @@ uses overlap too much, publish the failed experiment and keep it out of enforcem
 ### P4: developer workflows that feel finished
 
 Local preview: `--explain`, bounded JSONL batches, and two framework-independent
-model-call gates are implemented. See
+model-call gates are implemented. The isolated installed-wheel gate now loads
+both examples outside the checkout and records six allow/hold/cap outcomes. See
 [DEVELOPER_WORKFLOWS.md](DEVELOPER_WORKFLOWS.md). Production-host integration,
 human usability study, and release gates remain open.
 

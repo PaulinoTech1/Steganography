@@ -189,14 +189,20 @@ Do not treat RGI validity as a benign-intent label.
 The [developer workflow guide](DEVELOPER_WORKFLOWS.md) defines byte/record
 budgets, stream format, exit codes, and safe explanations. Its tests use a
 model-call recorder to verify that a held document or tool result cannot be
-forwarded through the examples. A real integration must repeat that check at
-its own final model-call boundary; a library unit test cannot verify a host
-application's routing. Review batch partial-output and terminal escaping
-cases before claiming CLI usability.
+forwarded through the examples. The release gate also builds a wheel, installs
+it in a disposable environment, loads the repository examples from outside the
+checkout, and records six allow/hold/cap outcomes at their model-call boundary.
+This catches source-only imports and missing installed dependencies in those
+paths. A real integration must repeat the check at its own final model-call
+boundary; these checks cannot verify a host application's routing. Review
+batch partial-output, count/order pairing, and terminal escaping cases before
+claiming CLI usability. When a workflow example changes, rerun the source tests
+and installed-wheel gate, then update this guide with the observed result.
 
 The final local bounded preview gate on 2026-10-02 reported 318 passing tests,
 30 contextual installed-wheel fixture outcomes, two installed developer CLI
-cases, 12 claim mappings, and six deliberately failing negative controls.
+cases, six installed RAG/tool boundary cases, 12 claim mappings, and six
+deliberately failing negative controls.
 Its default-path resource receipt
 covered 21 rows and 1,610 trials; the contextual artifact covered four rows
 and 40 trials. Both recorded zero timeouts. Other operating systems, Python

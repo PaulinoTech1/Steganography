@@ -11,8 +11,9 @@ document, safe stderr explanation, aggregate batch exit, and no call on held
 inputs.
 Done when: CLI flags and exit statuses have subprocess tests; empty,
 malformed, oversized, record/output limits and bidi escaping are tested;
-installed wheel exercises CLI paths; RAG/tool examples prove held inputs
-never reach a recording model caller; docs state partial-batch semantics.
+installed wheel exercises CLI paths and loads both examples from outside the
+checkout; RAG/tool examples prove held inputs never reach a recording model
+caller; docs state partial-batch semantics and platform-specific commands.
 
 Approach A: document a Python loop only (~20 lines, no CLI work). Rejected:
 does not serve command-line batch ingestion or machine-readable pipelines.

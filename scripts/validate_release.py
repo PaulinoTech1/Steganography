@@ -168,7 +168,8 @@ def main() -> int:
                 installed["policy_cases"] != evaluated["evaluated"] * len(policy_actions) or
                 installed["bounded_cases"] != 3 or
                 installed["contextual_cases"] != evaluated["evaluated"] or
-                installed["developer_cli_cases"] != 2):
+                installed["developer_cli_cases"] != 2 or
+                installed["installed_integration_cases"] != 6):
             raise ValueError("source/installed baseline mismatch")
         print(json.dumps({"profile": args.profile, "status": "PASS", "tests_passed": int(match.group(1)),
                           "development_fixtures": evaluated["evaluated"],
@@ -183,6 +184,7 @@ def main() -> int:
                           "contextual_development_counts": contextual["counts_by_project_label"],
                           "contextual_selected_clean_held": contextual["selected_clean_held"],
                           "installed_developer_cli_cases": installed["developer_cli_cases"],
+                          "installed_integration_cases": installed["installed_integration_cases"],
                           "installed_bounded_cases": installed["bounded_cases"],
                           "installed_cli_cases": installed["cli_cases"],
                           "resource_summary": resource_summary,
