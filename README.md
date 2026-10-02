@@ -1,5 +1,7 @@
 # stegdetect
 
+[![baseline](https://github.com/PaulinoTech1/Steganography/actions/workflows/ci.yml/badge.svg)](https://github.com/PaulinoTech1/Steganography/actions/workflows/ci.yml)
+
 A Unicode carrier pre-filter for text sent to a language model.
 
 `stegdetect` inspects Unicode *carriers*, not instruction meaning. It runs locally with no GPU, model weights, or network calls. The tests exercise specific carriers and legitimate samples; they do not establish prompt-injection prevention or accuracy across all languages and models.
