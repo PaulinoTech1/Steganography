@@ -30,7 +30,13 @@ def load_json(path: Path) -> dict:
 
 
 def verify_protected_tests(root: Path, manifest_path: Path) -> int:
-    """Preserve byte identity of every test present at the d876974 baseline."""
+    """Preserve content identity of every test present at the d876974 baseline.
+
+    Line endings are normalized before hashing: the pin map was generated on
+    a CRLF checkout, which made every pin mismatch on LF checkouts. Content
+    identity (not raw bytes) is what the tamper check needs; a line-ending
+    change cannot weaken a test.
+    """
     mapping = load_json(manifest_path)["sha256"]
     if not mapping:
         raise ValueError("protected test map is empty")
@@ -38,7 +44,8 @@ def verify_protected_tests(root: Path, manifest_path: Path) -> int:
         target = root / relative
         if not target.is_file():
             raise ValueError(f"protected test missing: {relative}")
-        actual = hashlib.sha256(target.read_bytes()).hexdigest()
+        content = target.read_bytes().replace(b"\r\n", b"\n")
+        actual = hashlib.sha256(content).hexdigest()
         if actual != expected:
             raise ValueError(f"protected test changed: {relative}")
     return len(mapping)

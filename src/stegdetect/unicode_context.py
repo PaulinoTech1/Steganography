@@ -15,7 +15,7 @@ from .unicode_scan import INVISIBLE_FORMAT, ZERO_WIDTH, _is_tag
 
 
 _DATA = Path(__file__).with_name("data") / "emoji-context-18.0.txt"
-_DATA_SHA256 = "3c3d5f104f219c08c47333f80fc3d29364f5ff5ef536afd0c884aa0fb851b3fc"
+_DATA_SHA256 = "c9c3c3d83e6104c4f90347a276cbad2c86c82802b19e6d6c545a690d0a693ed8"
 _CARRIER_NEIGHBORS = {"\u200c", "\u200d", "\ufe0e", "\ufe0f"}
 _RTL_OPENERS = {"\u2067", "\u2068"}  # RLI and FSI; LRI stays under review.
 _ISOLATE_OPENERS = _RTL_OPENERS | {"\u2066"}
@@ -41,7 +41,8 @@ class ContextSummary:
 def _emoji_trie() -> dict:
     trie: dict = {}
     rows = 0
-    raw = _DATA.read_bytes()
+    # Normalized so the pin holds on CRLF checkouts too; content is ASCII.
+    raw = _DATA.read_bytes().replace(b"\r\n", b"\n")
     if hashlib.sha256(raw).hexdigest() != _DATA_SHA256:
         raise ValueError("bundled Emoji 18 context data checksum mismatch")
     for line in raw.decode("ascii").splitlines():

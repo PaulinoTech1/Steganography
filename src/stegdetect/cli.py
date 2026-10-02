@@ -14,6 +14,33 @@ from .reasons import REASON_EXPLANATIONS
 
 _BATCH_BYTE_LIMIT = 67_108_864
 
+# Nesting deeper than this is held outright. Newer json scanners parse input
+# that older ones reject with RecursionError, so the bound is enforced here
+# instead of relying on version-dependent parser behavior.
+_MAX_JSON_NESTING_DEPTH = 200
+
+
+def _json_nesting_depth(value) -> int:
+    """Depth of nested lists/dicts; scalars are depth 0.
+
+    Iterative on purpose: the C scanner now accepts nesting deeper than
+    Python's recursion limit, so a recursive walk would crash on exactly
+    the input this guard exists to hold.
+    """
+    max_depth = 0
+    stack = [(value, 1)]
+    while stack:
+        node, depth = stack.pop()
+        if isinstance(node, list):
+            if depth > max_depth:
+                max_depth = depth
+            stack.extend((item, depth + 1) for item in node)
+        elif isinstance(node, dict):
+            if depth > max_depth:
+                max_depth = depth
+            stack.extend((item, depth + 1) for item in node.values())
+    return max_depth
+
 
 def _exit_code(report) -> int:
     return 0 if report.action == "allow" else 3 if report.status == "complete" else 4
@@ -65,9 +92,12 @@ def _inspect_jsonl(source: BinaryIO, policy: Policy, limits: Limits,
         except (UnicodeDecodeError, ValueError, RecursionError):
             report = _held(POLICY_IDS[policy], "invalid_input", "INVALID_JSON", limits)
         else:
-            report = (inspect_text(value, policy=policy, limits=limits)
-                      if isinstance(value, str) else
-                      _held(POLICY_IDS[policy], "invalid_input", "INVALID_TYPE", limits))
+            if _json_nesting_depth(value) > _MAX_JSON_NESTING_DEPTH:
+                report = _held(POLICY_IDS[policy], "invalid_input", "INVALID_JSON", limits)
+            else:
+                report = (inspect_text(value, policy=policy, limits=limits)
+                          if isinstance(value, str) else
+                          _held(POLICY_IDS[policy], "invalid_input", "INVALID_TYPE", limits))
         payload = report.to_json()
         output_bytes += len(payload) + 1
         if output_bytes > batch_output_byte_limit:

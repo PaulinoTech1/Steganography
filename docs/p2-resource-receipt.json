@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "artifact_sha256": "cdda93d41b6d1ff59f94d6c23019ecf9e41a13b064fdf9a20f918d2a43cdcea4",
+  "artifact_sha256": "700b8297f41bd44828ddd0e0bba1bbfde13f5cdf49116315ef1151f6bcd0747a",
   "source_sha256": {
     "src/stegdetect/inspection.py": "bcb2a9da9b5f8d6f171856f06d77b96125b6041387c32d7b214633fc89ce16a2",
     "src/stegdetect/bounded_scan.py": "7be657c0fd5c798cc87299c4d92d6106f134452da04dcf5a4d7d8f228232220c",
     "src/stegdetect/policy.py": "26aa8c89530491d6bab98a04354158fd58d062544f7d5a19e2150cd669d8bb2f",
-    "src/stegdetect/unicode_scan.py": "8dfc2b5baab790fb0a19d648549a7cfbc0e0587532ed2865a89e7f9647e7c0c8",
-    "src/stegdetect/unicode_context.py": "1025d054d956154d1273ba852decb895a8b11836b6b823e0749ce96aa83035b4",
-    "src/stegdetect/data/emoji-context-18.0.txt": "3c3d5f104f219c08c47333f80fc3d29364f5ff5ef536afd0c884aa0fb851b3fc",
+    "src/stegdetect/unicode_scan.py": "bf6ce4585ef7aba4fed5a0f39666c0ff0857687bdb4b3079ef2ac0cfcc9e4902",
+    "src/stegdetect/unicode_context.py": "59415a7ed314e51b63f0e602725a7e7e44ed966b9648756a1fd50628345714a5",
+    "src/stegdetect/data/emoji-context-18.0.txt": "c9c3c3d83e6104c4f90347a276cbad2c86c82802b19e6d6c545a690d0a693ed8",
     "benchmarks/resources.py": "ddc3e13d9fd9b9e3b2c59b1698c76d63f59c68a354fee42ab6503858c0cb7a79"
   }
 }

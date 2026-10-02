@@ -27,7 +27,8 @@ SIZES = (16_384, 65_536, 1_048_576)
 
 
 def digest(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Normalized so pins hold on CRLF checkouts; the binding is over content.
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def verify_structure(data: dict) -> dict:

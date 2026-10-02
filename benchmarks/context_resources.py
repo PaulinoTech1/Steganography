@@ -32,7 +32,8 @@ SOURCES = (
 
 
 def source_hashes() -> dict[str, str]:
-    return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+    # Normalized so pins hold on CRLF checkouts; the binding is over content.
+    return {name: hashlib.sha256((ROOT / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
             for name in SOURCES}
 
 
