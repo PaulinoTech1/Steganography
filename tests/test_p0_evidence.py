@@ -79,13 +79,16 @@ def test_legacy_context_probe(name, text, verdict, category, count, sanitized):
     assert report.sanitized == sanitized, name
 
 
-@pytest.mark.parametrize("text,once,twice", [
-    ("a\u200b\u0301", "a\u0301", "\u00e1"),
-    ("\u0430\u0301", "a\u0301", "\u00e1"),
+@pytest.mark.parametrize("text,expected", [
+    ("a\u200b\u0301", "á"),
+    ("\u0430\u0301", "á"),
 ])
-def test_legacy_rewrite_can_change_again(text, once, twice):
-    assert canonicalize(text) == once
-    assert canonicalize(once) == twice
+def test_legacy_rewrite_is_idempotent(text, expected):
+    # Canonicalization used to expose a second composition change on re-run
+    # (e.g. 'a' + acute composing to 'á'); NFKC now runs after the
+    # strip/map step, so the first pass already reaches the fixed point.
+    assert canonicalize(text) == expected
+    assert canonicalize(expected) == expected
 
 
 def test_legacy_cli_json_fails_on_strict_utf8_lone_surrogate(monkeypatch):

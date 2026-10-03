@@ -58,7 +58,12 @@ def _nfkc(text: str) -> str:
 
 
 def canonicalize(text: str) -> str:
-    """Return a normalized copy with configured carriers removed or mapped."""
+    """Return a normalized copy with configured carriers removed or mapped.
+
+    Idempotent: NFKC runs both before and after the strip/map step, because
+    mapping a confusable can expose a new composition (Cyrillic 'а' plus a
+    combining acute becomes 'a' plus acute, which then composes to 'á').
+    """
     text = _nfkc(text)
     out: list[str] = []
     for ch in text:
@@ -71,4 +76,4 @@ def canonicalize(text: str) -> str:
             out.append(" ")
             continue
         out.append(ch)
-    return "".join(out)
+    return _nfkc("".join(out))

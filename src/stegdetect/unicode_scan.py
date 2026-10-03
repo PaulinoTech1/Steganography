@@ -82,6 +82,30 @@ CONFUSABLES = {
     "Ζ": "Z",
 }
 
+# Detection-only confusables: additional scripts' Latin lookalikes from
+# UTS #39 confusables.txt (v18.0), curated to single letters. These are
+# flagged by the mixed-script detector but deliberately NOT rewritten by
+# canonicalize(), so legitimate Armenian/Arabic/CJK text is never mangled.
+# Detection is density-gated (>=90% of foreign letters must be confusables),
+# so real prose in these scripts is not flagged.
+CONFUSABLES_DETECT_ONLY = {
+    # Armenian -> Latin
+    "\u054d": "S", "\u054f": "S", "\u0555": "O",
+    "\u0561": "w", "\u0563": "q", "\u0566": "q", "\u0570": "h",
+    "\u0575": "j", "\u0578": "n", "\u057c": "n", "\u057d": "u",
+    "\u0581": "g", "\u0582": "i", "\u0584": "f", "\u0585": "o",
+    # Arabic -> Latin
+    "\u0627": "l", "\u0647": "o", "\u06be": "o", "\u06c1": "o",
+    "\u06d5": "o",
+    # Han -> Latin
+    "\u4e05": "T", "\u4e2b": "Y",
+}
+
+
+def confusable_target(ch: str) -> str | None:
+    """Return the Latin lookalike for a known confusable, if any."""
+    return CONFUSABLES.get(ch, CONFUSABLES_DETECT_ONLY.get(ch))
+
 
 def _is_tag(ch: str) -> bool:
     return 0xE0000 <= ord(ch) <= 0xE007F
@@ -103,7 +127,14 @@ def _script_of(ch: str) -> str:
         return "Hebrew"
     if 0x0600 <= o <= 0x06FF:
         return "Arabic"
+    if 0x4E00 <= o <= 0x9FFF or 0x3400 <= o <= 0x4DBF:
+        return "Han"
     return "Other"
+
+
+# Scripts whose Latin lookalikes the detector knows (CONFUSABLES plus
+# CONFUSABLES_DETECT_ONLY). Keep in sync with both tables.
+_FOREIGN_SCRIPTS = ("Cyrillic", "Greek", "Armenian", "Arabic", "Han")
 
 
 @dataclass
@@ -192,10 +223,10 @@ def scan_unicode(text: str) -> list[Finding]:
 
     # Mixed-script / homoglyph detection. Two attack shapes:
     #
-    #  Shape 1, isolated confusables: Cyrillic/Greek/Armenian lookalikes
-    #  inside Latin/ASCII text ("раypal"). Almost never legitimate.
-    #  Flagged only when nearly every foreign letter is a known
-    #  confusable, so legitimate code-switching ("Привет world") passes.
+    #  Shape 1, isolated confusables: foreign-script lookalikes inside
+    #  Latin/ASCII text ("раypal"). Almost never legitimate. Flagged only
+    #  when nearly every foreign letter is a known confusable, so
+    #  legitimate code-switching ("Привет world") passes.
     #
     #  Shape 2, full-alphabet substitution: text dominated by a foreign
     #  script where ~every letter is a Latin confusable. Real prose in
@@ -209,7 +240,7 @@ def scan_unicode(text: str) -> list[Finding]:
             s = _script_of(ch)
             scripts[s] = scripts.get(s, 0) + 1
         foreign = [(i, ch) for i, ch in letters
-                   if _script_of(ch) in ("Cyrillic", "Greek", "Armenian")]
+                   if _script_of(ch) in _FOREIGN_SCRIPTS]
         has_latin = any(_script_of(ch) in ("ASCII", "Latin")
                         for _, ch in letters)
 
@@ -224,9 +255,10 @@ def scan_unicode(text: str) -> list[Finding]:
 
         if foreign:
             dom_foreign = max(
-                (s for s in scripts if s in ("Cyrillic", "Greek", "Armenian")),
+                (s for s in scripts if s in _FOREIGN_SCRIPTS),
                 key=lambda s: scripts[s])
-            confusable_n = sum(1 for _, ch in foreign if ch in CONFUSABLES)
+            confusable_n = sum(1 for _, ch in foreign
+                               if confusable_target(ch) is not None)
             density = confusable_n / len(foreign)
             if (scripts[dom_foreign] / total >= 0.7 and len(foreign) >= 8
                     and density >= 0.9):
@@ -239,9 +271,10 @@ def scan_unicode(text: str) -> list[Finding]:
             elif has_latin and density >= 0.9:
                 # Shape 1: isolated confusables in Latin text.
                 for i, ch in foreign:
-                    if ch in CONFUSABLES:
+                    target = confusable_target(ch)
+                    if target is not None:
                         flag(ch, i,
                              f"Homoglyph: {_script_of(ch)} "
-                             f"'{ch}' visually mimics Latin '{CONFUSABLES[ch]}'.")
+                             f"'{ch}' visually mimics Latin '{target}'.")
 
     return sorted(findings, key=lambda f: f.offset)

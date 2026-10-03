@@ -9,8 +9,9 @@ from dataclasses import dataclass
 from typing import Iterator
 
 from .unicode_scan import (
-    BIDI_CONTROLS, CONFUSABLES, INVISIBLE_FORMAT, WEIRD_SPACES,
+    BIDI_CONTROLS, INVISIBLE_FORMAT, WEIRD_SPACES,
     ZERO_WIDTH, ZW_CLUSTER_THRESHOLD, Finding, _cp, _is_tag, _script_of,
+    _FOREIGN_SCRIPTS, confusable_target,
 )
 
 
@@ -43,12 +44,12 @@ def _statistics(text: str) -> tuple[int, bool, bool, float, str]:
         scripts[script] = scripts.get(script, 0) + 1
         if script in ("ASCII", "Latin"):
             has_latin = True
-        if script in ("Cyrillic", "Greek", "Armenian"):
+        if script in _FOREIGN_SCRIPTS:
             foreign_count += 1
-            confusable_count += ch in CONFUSABLES
+            confusable_count += confusable_target(ch) is not None
     density = confusable_count / foreign_count if foreign_count else 0.0
     dominant = (max((script for script in scripts
-                     if script in ("Cyrillic", "Greek", "Armenian")),
+                     if script in _FOREIGN_SCRIPTS),
                     key=lambda script: scripts[script]) if foreign_count else "")
     full_substitution = bool(total_letters and foreign_count >= 8 and density >= 0.9
                              and scripts[dominant] / total_letters >= 0.7)
@@ -84,15 +85,18 @@ def _findings(text: str, stats: tuple[int, bool, bool, float, str]) -> Iterator[
             yield Finding(category="SUSPICIOUS_WHITESPACE", severity="low", offset=offset,
                           detail=f"Non-standard space: {WEIRD_SPACES[ch]}", codepoints=_cp(ch))
 
-        if not ch.isalpha() or _script_of(ch) not in ("Cyrillic", "Greek", "Armenian"):
+        if not ch.isalpha() or _script_of(ch) not in _FOREIGN_SCRIPTS:
             continue
         if full_substitution:
             detail = ("Full-alphabet confusable substitution: "
                       f"{dominant}-dominant text where "
                       f"{density:.0%} of letters are Latin lookalikes.")
-        elif isolated and ch in CONFUSABLES:
+        elif isolated:
+            target = confusable_target(ch)
+            if target is None:
+                continue
             detail = (f"Homoglyph: {_script_of(ch)} "
-                      f"'{ch}' visually mimics Latin '{CONFUSABLES[ch]}'.")
+                      f"'{ch}' visually mimics Latin '{target}'.")
         else:
             continue
         yield Finding(category="MIXED_SCRIPT", severity="high", offset=offset,

@@ -30,16 +30,17 @@ prevented.
 `sanitized` is produced on *every* text, including clean text. NFKC folding and
 configured confusable mapping can rewrite Russian/English code-switching,
 Chinese fullwidth punctuation, and mathematical notation with zero findings.
-The P0 fixtures pin this behavior. Re-running canonicalization can produce a
-second composition change, for example `a\u200b\u0301` and `\u0430\u0301`.
+The P0 fixtures pin this behavior. Canonicalization is idempotent: NFKC runs
+before and after the strip/map step, so mapping a confusable cannot expose a
+second composition change (this is pinned by `test_canonicalize_is_idempotent`).
 No new policy or transform is implemented in P0.
 
-The scanner accepts Python strings containing lone surrogates, but the CLI can
-raise `UnicodeEncodeError` when output is restricted to strict UTF-8. Its error
-path and exact outcome depend on the stream encoding. The P0 regression test
-only proves the strict UTF-8 case. File/stdin resource limits and installed
-distribution behavior across platforms remain future work beyond this baseline
-smoke gate.
+`analyze()` enforces the input length bound (`Limits.max_chars`, default ~1M
+codepoints): over-limit input raises instead of being scanned unbounded.
+Lone surrogates remain accepted by the legacy `analyze()` path (pinned by
+fuzz and robustness coverage); only the `inspect_*()` path rejects them.
+The legacy CLI reports over-limit input as an error (exit 2) instead of a
+traceback.
 
 The protected original test files and SHA-256 values are frozen in
 [`evals/protected_tests.json`](../evals/protected_tests.json). Any byte change

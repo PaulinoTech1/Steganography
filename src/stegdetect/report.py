@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .canonicalize import canonicalize
+from .inspection import Limits
 from .unicode_scan import Finding, scan_unicode
 
 VERDICT_CLEAN = "clean"
@@ -32,7 +33,19 @@ class Report:
         }
 
 
-def analyze(text: str) -> Report:
+def analyze(text: str, *, limits: Limits = Limits()) -> Report:
+    """Analyze text with the legacy verdict rules, bounded by limits.
+
+    Lone surrogates remain accepted input here (pinned by fuzz and
+    robustness coverage); only the inspect_*() path rejects them. Over-limit
+    input raises instead of being scanned unbounded.
+    """
+    if not isinstance(text, str):
+        raise TypeError("text must be a str")
+    if not isinstance(limits, Limits):
+        raise TypeError("limits must be a Limits instance")
+    if len(text) > limits.max_chars:
+        raise ValueError(f"text exceeds max_chars ({limits.max_chars})")
     findings = scan_unicode(text)
     sanitized = canonicalize(text)
     # Residual check: anything the canonicalizer could not neutralize?

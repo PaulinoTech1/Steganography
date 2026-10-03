@@ -191,7 +191,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         p.error("provide text, -f FILE, or pipe stdin")
 
-    report = analyze(text)
+    try:
+        report = analyze(text)
+    except (TypeError, ValueError) as exc:
+        print(f"stegdetect: input rejected: {exc}", file=sys.stderr)
+        return 2
     if args.sanitize:
         print(report.sanitized)
     else:

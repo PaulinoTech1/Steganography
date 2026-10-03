@@ -8,4 +8,4 @@ from .inspection import Evidence, InspectionReport, Limits, inspect_bytes, inspe
 from .policy import Policy
 
 __all__ = ["analyze", "Report", "inspect_text", "inspect_bytes", "InspectionReport", "Evidence", "Policy", "Limits"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
