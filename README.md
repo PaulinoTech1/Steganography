@@ -1,5 +1,9 @@
 # stegdetect
 
+## TL;DR
+
+stegdetect: a defensive pre-filter that catches steganographic prompt injection (zero-width characters, bidi overrides, homoglyphs) before untrusted text reaches an LLM. No GPU, no weights, works in front of any model. Goal: a cheap Unicode-layer input safety net. Honest scope: defeats Unicode carriers, not plain-text or rendering-trick injections.
+
 [![baseline](https://github.com/PaulinoTech1/Steganography/actions/workflows/ci.yml/badge.svg)](https://github.com/PaulinoTech1/Steganography/actions/workflows/ci.yml)
 
 A Unicode carrier pre-filter for text sent to a language model.
